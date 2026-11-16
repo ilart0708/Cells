@@ -5,3 +5,7 @@ spring:
     password: ${DB_PASSWORD:change_me_local_only}
   flyway:
     enabled: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:local-dev-only-secret-change-me-32-bytes-min}
