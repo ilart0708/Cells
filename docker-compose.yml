@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:18
+    container_name: cells-db
+    environment:
+      POSTGRES_DB: cells
+      POSTGRES_USER: cells
+      POSTGRES_PASSWORD: change_me_local_only
+    ports:
+      - "5432:5432"
+    volumes:
+      - cells-db-data:/var/lib/postgresql
+volumes:
+  cells-db-data:

@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cells
+    username: cells
+    password: ${DB_PASSWORD:change_me_local_only}
+  flyway:
+    enabled: true
