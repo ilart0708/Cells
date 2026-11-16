@@ -7,8 +7,5 @@ spring:
     enabled: true
 
 app:
-  bootstrap:
-    admin:
-      email: ${BOOTSTRAP_ADMIN_EMAIL:}
-      password: ${BOOTSTRAP_ADMIN_PASSWORD:}
-      full-name: ${BOOTSTRAP_ADMIN_NAME:Platform Administrator}
+  jwt:
+    secret: ${JWT_SECRET:local-dev-only-secret-change-me-32-bytes-min}
