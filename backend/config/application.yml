@@ -16,3 +16,8 @@ app:
     secret: ${JWT_SECRET:short}
     issuer: cells
     access-token-ttl: 15m
+  refresh:
+    ttl: 7d
+    cookie-secure: ${REFRESH_COOKIE_SECURE:true}
+  dev-seed:
+    password: ${DEV_SEED_PASSWORD:}

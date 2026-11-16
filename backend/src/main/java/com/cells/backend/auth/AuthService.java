@@ -16,20 +16,22 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
     private final String dummyHash;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       TokenService tokenService) {
+                       TokenService tokenService,
+                       RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
-        // Used to spend the same time on unknown emails as on real ones.
+        this.refreshTokenService = refreshTokenService;
         this.dummyHash = passwordEncoder.encode("dummy-password-for-timing");
     }
 
-    @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest request) {
+    @Transactional
+    public AuthResult login(LoginRequest request) {
         String email = request.email().trim().toLowerCase();
         User user = userRepository.findByEmail(email).orElse(null);
 
@@ -44,8 +46,37 @@ public class AuthService {
             throw new AccountNotActiveException();
         }
 
-        TokenService.AccessToken token = tokenService.createAccessToken(user);
-        return new LoginResponse(token.value(), "Bearer", token.expiresInSeconds(), UserResponse.from(user));
+        String refreshToken = refreshTokenService.issue(user.getId());
+        return new AuthResult(buildResponse(user), refreshToken);
+    }
+
+    // noRollbackFor: when a reused token is detected, the family revocation
+    // must be committed even though we then answer 401.
+    @Transactional(noRollbackFor = {InvalidCredentialsException.class, AccountNotActiveException.class})
+    public AuthResult refresh(String rawToken) {
+        if (rawToken == null || rawToken.isBlank()) {
+            throw new InvalidCredentialsException();
+        }
+
+        RefreshTokenService.Rotation rotation = refreshTokenService.rotate(rawToken)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        User user = userRepository.findById(rotation.userId())
+                .orElseThrow(InvalidCredentialsException::new);
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            refreshTokenService.revokeFamily(rotation.familyId());
+            throw new AccountNotActiveException();
+        }
+
+        return new AuthResult(buildResponse(user), rotation.newToken());
+    }
+
+    @Transactional
+    public void logout(String rawToken) {
+        if (rawToken != null && !rawToken.isBlank()) {
+            refreshTokenService.revoke(rawToken);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -55,5 +86,10 @@ public class AuthService {
             throw new AccountNotActiveException();
         }
         return UserResponse.from(user);
+    }
+
+    private LoginResponse buildResponse(User user) {
+        TokenService.AccessToken token = tokenService.createAccessToken(user);
+        return new LoginResponse(token.value(), "Bearer", token.expiresInSeconds(), UserResponse.from(user));
     }
 }
