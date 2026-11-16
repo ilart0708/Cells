@@ -5,3 +5,10 @@ spring:
     password: ${DB_PASSWORD:change_me_local_only}
   flyway:
     enabled: true
+
+app:
+  bootstrap:
+    admin:
+      email: ${BOOTSTRAP_ADMIN_EMAIL:}
+      password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+      full-name: ${BOOTSTRAP_ADMIN_NAME:Platform Administrator}
