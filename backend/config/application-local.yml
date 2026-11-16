@@ -9,3 +9,5 @@ spring:
 app:
   jwt:
     secret: ${JWT_SECRET:local-dev-only-secret-change-me-32-bytes-min}
+  refresh:
+    cookie-secure: false
