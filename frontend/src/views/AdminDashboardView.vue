@@ -1,0 +1,16 @@
+<script setup>
+import PlaceholderDashboard from '../../components/PlaceholderDashboard.vue'
+
+const pages = [
+  { name: 'Church Management', phase: 3 },
+  { name: 'Pastor Management', phase: 3 },
+  { name: 'Cell Group Leader Management', phase: 3 },
+  { name: 'Room Monitoring', phase: 8 },
+  { name: 'Member Management', phase: 8 },
+  { name: 'Participation Analytics', phase: 8 },
+]
+</script>
+
+<template>
+  <PlaceholderDashboard :pages="pages" />
+</template>

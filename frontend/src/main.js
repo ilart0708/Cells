@@ -5,10 +5,30 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from './stores/auth'
+import { configureHttp } from './api/http'
 
-const app = createApp(App)
+async function bootstrap() {
+  const app = createApp(App)
+  const pinia = createPinia()
+  app.use(pinia)
 
-app.use(createPinia())
-app.use(router)
+  const auth = useAuthStore(pinia)
+  configureHttp({
+    getToken: () => auth.accessToken,
+    refresh: auth.refresh,
+    onSessionExpired: () => {
+      auth.clearSession()
+      router.push({ name: 'login' })
+    },
+  })
 
-app.mount('#app')
+  // Restore the session BEFORE the router starts, so the first navigation already knows
+  // whether the user is logged in.
+  await auth.restoreSession()
+
+  app.use(router)
+  app.mount('#app')
+}
+
+bootstrap()
