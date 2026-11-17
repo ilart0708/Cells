@@ -7,6 +7,10 @@ import com.cells.backend.pastor.PastorRepository;
 import com.cells.backend.user.Role;
 import com.cells.backend.user.User;
 import com.cells.backend.user.UserRepository;
+import com.cells.backend.leader.CellGroupLeader;
+import com.cells.backend.leader.CellGroupLeaderRepository;
+import com.cells.backend.leader.PastorLeader;
+import com.cells.backend.leader.PastorLeaderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,17 +34,21 @@ public class DevSeedRunner implements ApplicationRunner {
     private final UserRepository userRepository;
     private final ChurchRepository churchRepository;
     private final PastorRepository pastorRepository;
+    private final CellGroupLeaderRepository leaderRepository;
+    private final PastorLeaderRepository pastorLeaderRepository;
     private final PasswordEncoder passwordEncoder;
     private final String password;
 
     public DevSeedRunner(UserRepository userRepository,
                          ChurchRepository churchRepository,
-                         PastorRepository pastorRepository,
+                         PastorRepository pastorRepository, CellGroupLeaderRepository leaderRepository, PastorLeaderRepository pastorLeaderRepository,
                          PasswordEncoder passwordEncoder,
                          @Value("${app.dev-seed.password:}") String password) {
         this.userRepository = userRepository;
         this.churchRepository = churchRepository;
         this.pastorRepository = pastorRepository;
+        this.leaderRepository = leaderRepository;
+        this.pastorLeaderRepository = pastorLeaderRepository;
         this.passwordEncoder = passwordEncoder;
         this.password = password;
     }
@@ -62,7 +70,14 @@ public class DevSeedRunner implements ApplicationRunner {
             log.info("Dev seed: {} linked to {}", pastor.getEmail(), church.getName());
         }
 
-        seed("leader@example.com", "Test Leader", Role.LEADER);
+        User leader = seed("leader@example.com", "Test Leader", Role.LEADER);
+        if (!leaderRepository.existsById(leader.getId())) {
+            leaderRepository.save(new CellGroupLeader(leader.getId(), church));
+            pastorLeaderRepository.save(new PastorLeader(leader.getId(), pastor.getId()));
+            log.info("Dev seed: {} linked to {} under pastor {}",
+                    leader.getEmail(), church.getName(), pastor.getEmail());
+        }
+
         seed("member@example.com", "Test Member", Role.MEMBER);
     }
 

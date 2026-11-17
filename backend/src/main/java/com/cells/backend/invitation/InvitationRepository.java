@@ -29,6 +29,14 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
 
     @Modifying
     @Query("update Invitation i set i.revokedAt = :now "
-            + "where i.email = :email and i.acceptedAt is null and i.revokedAt is null")
-    int revokePendingForEmail(@Param("email") String email, @Param("now") Instant now);
+            + "where i.email = :email and i.invitedBy = :invitedBy "
+            + "and i.acceptedAt is null and i.revokedAt is null")
+    int revokePendingForEmail(@Param("email") String email,
+                              @Param("invitedBy") Long invitedBy,
+                              @Param("now") Instant now);
+
+    @EntityGraph(attributePaths = "church")
+    Page<Invitation> findByInvitedBy(Long invitedBy, Pageable pageable);
+
+    Optional<Invitation> findByIdAndInvitedBy(Long id, Long invitedBy);
 }
