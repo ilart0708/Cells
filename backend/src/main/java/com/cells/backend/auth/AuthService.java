@@ -92,4 +92,11 @@ public class AuthService {
         TokenService.AccessToken token = tokenService.createAccessToken(user);
         return new LoginResponse(token.value(), "Bearer", token.expiresInSeconds(), UserResponse.from(user));
     }
+
+    /** Starts a session for an already-verified user (used after accepting an invitation). */
+    @Transactional
+    public AuthResult startSession(User user) {
+        String refreshToken = refreshTokenService.issue(user.getId());
+        return new AuthResult(buildResponse(user), refreshToken);
+    }
 }
