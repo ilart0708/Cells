@@ -19,7 +19,7 @@ const router = createRouter({
         {
           path: '',
           name: 'admin-dashboard',
-          component: () => import('../views/admin/AdminDashboardView.vue'),
+          component: () => import('../views/AdminDashboardView.vue'),
         },
       ],
     },
@@ -31,7 +31,7 @@ const router = createRouter({
         {
           path: '',
           name: 'pastor-dashboard',
-          component: () => import('../views/pastor/PastorDashboardView.vue'),
+          component: () => import('../views/PastorDashboardView.vue'),
         },
       ],
     },
@@ -43,7 +43,7 @@ const router = createRouter({
         {
           path: '',
           name: 'leader-dashboard',
-          component: () => import('../views/leader/LeaderDashboardView.vue'),
+          component: () => import('../views/LeaderDashboardView.vue'),
         },
       ],
     },
@@ -55,14 +55,14 @@ const router = createRouter({
         {
           path: '',
           name: 'member-dashboard',
-          component: () => import('../views/member/MemberDashboardView.vue'),
+          component: () => import('../views/MemberDashboardView.vue'),
         },
       ],
     },
     // "/" and unknown paths go to login. The guard below sends a logged-in user
     // from login to their own area, so no extra "home" route is needed.
     { path: '/', redirect: { name: 'login' } },
-    { path: '/:pathMatch(.*)*', redirect: { name: 'login' } },
+    { path: '/:pathMatch(.*)*', redirect: () => ({ name: 'login' }) },
   ],
 })
 

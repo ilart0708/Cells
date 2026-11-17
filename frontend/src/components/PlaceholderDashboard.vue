@@ -1,6 +1,5 @@
 <script setup>
 import { useAuthStore } from '../stores/auth'
-import ApiProbe from './dev/ApiProbe.vue'
 
 defineProps({
   pages: { type: Array, required: true }, // [{ name, phase }]
@@ -30,7 +29,5 @@ const auth = useAuthStore()
         </li>
       </ul>
     </section>
-
-    <ApiProbe />
   </div>
 </template>

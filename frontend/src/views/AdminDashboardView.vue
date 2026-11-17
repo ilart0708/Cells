@@ -1,5 +1,5 @@
 <script setup>
-import PlaceholderDashboard from '../../components/PlaceholderDashboard.vue'
+import PlaceholderDashboard from '../components/PlaceholderDashboard.vue'
 
 const pages = [
   { name: 'Church Management', phase: 3 },
