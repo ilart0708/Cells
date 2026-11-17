@@ -5,6 +5,7 @@ import com.cells.backend.auth.TokenService;
 import com.cells.backend.church.Church;
 import com.cells.backend.church.ChurchRepository;
 import com.cells.backend.common.TokenHasher;
+import com.cells.backend.pastor.PastorRepository;
 import com.cells.backend.user.Role;
 import com.cells.backend.user.User;
 import com.cells.backend.user.UserRepository;
@@ -43,6 +44,7 @@ class InvitationApiTest extends IntegrationTestBase {
     @Autowired private ChurchRepository churches;
     @Autowired private InvitationRepository invitations;
     @Autowired private TokenService tokenService;
+    @Autowired private PastorRepository pastors;
 
     private Church church;
     private User admin;
@@ -139,6 +141,8 @@ class InvitationApiTest extends IntegrationTestBase {
     @Test
     void acceptingCreatesTheAccountLogsTheUserInAndIsSingleUse() throws Exception {
         String token = createToken("john@test.com");
+        Long pastorId = users.findByEmail("john@test.com").orElseThrow().getId();
+        assertThat(pastors.findById(pastorId)).isPresent();
 
         MvcResult result = accept(token, "Pastor John", PASSWORD)
                 .andExpect(status().isOk())

@@ -12,6 +12,8 @@ import com.cells.backend.common.PageResponse;
 import com.cells.backend.common.ResourceNotFoundException;
 import com.cells.backend.common.TokenHasher;
 import com.cells.backend.config.InvitationProperties;
+import com.cells.backend.pastor.Pastor;
+import com.cells.backend.pastor.PastorRepository;
 import com.cells.backend.user.Role;
 import com.cells.backend.user.User;
 import com.cells.backend.user.UserRepository;
@@ -34,19 +36,21 @@ public class InvitationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final InvitationProperties properties;
+    private final PastorRepository pastorRepository;
 
     public InvitationService(InvitationRepository invitationRepository,
                              ChurchRepository churchRepository,
                              UserRepository userRepository,
                              PasswordEncoder passwordEncoder,
                              AuthService authService,
-                             InvitationProperties properties) {
+                             InvitationProperties properties, PastorRepository pastorRepository) {
         this.invitationRepository = invitationRepository;
         this.churchRepository = churchRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
         this.properties = properties;
+        this.pastorRepository = pastorRepository;
     }
 
     @Transactional
@@ -127,7 +131,9 @@ public class InvitationService {
                 invitation.getRole()));
         invitation.markAccepted(now);
 
-        // Step 3 adds the role-specific record (the pastor's church link) here.
+        if (invitation.getRole() == Role.PASTOR) {
+            pastorRepository.save(new Pastor(user.getId(), invitation.getChurch()));
+        }
 
         return authService.startSession(user);
     }
