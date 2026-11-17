@@ -1,8 +1,16 @@
 package com.cells.backend.config;
 
+import com.cells.backend.church.Church;
+import com.cells.backend.church.ChurchRepository;
+import com.cells.backend.pastor.Pastor;
+import com.cells.backend.pastor.PastorRepository;
 import com.cells.backend.user.Role;
 import com.cells.backend.user.User;
 import com.cells.backend.user.UserRepository;
+import com.cells.backend.leader.CellGroupLeader;
+import com.cells.backend.leader.CellGroupLeaderRepository;
+import com.cells.backend.leader.PastorLeader;
+import com.cells.backend.leader.PastorLeaderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,8 +22,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * LOCAL DEVELOPMENT ONLY. Creates one test user per role so access rules can be tested
- * before invitations exist (Phase 3). Does nothing unless DEV_SEED_PASSWORD is set.
+ * LOCAL DEVELOPMENT ONLY. Creates a demo church and one test user per role so access rules
+ * can be tested. Does nothing unless DEV_SEED_PASSWORD is set.
  */
 @Component
 @Profile("local")
@@ -24,13 +32,23 @@ public class DevSeedRunner implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(DevSeedRunner.class);
 
     private final UserRepository userRepository;
+    private final ChurchRepository churchRepository;
+    private final PastorRepository pastorRepository;
+    private final CellGroupLeaderRepository leaderRepository;
+    private final PastorLeaderRepository pastorLeaderRepository;
     private final PasswordEncoder passwordEncoder;
     private final String password;
 
     public DevSeedRunner(UserRepository userRepository,
+                         ChurchRepository churchRepository,
+                         PastorRepository pastorRepository, CellGroupLeaderRepository leaderRepository, PastorLeaderRepository pastorLeaderRepository,
                          PasswordEncoder passwordEncoder,
                          @Value("${app.dev-seed.password:}") String password) {
         this.userRepository = userRepository;
+        this.churchRepository = churchRepository;
+        this.pastorRepository = pastorRepository;
+        this.leaderRepository = leaderRepository;
+        this.pastorLeaderRepository = pastorLeaderRepository;
         this.passwordEncoder = passwordEncoder;
         this.password = password;
     }
@@ -42,16 +60,31 @@ public class DevSeedRunner implements ApplicationRunner {
             log.info("Dev seed skipped: set DEV_SEED_PASSWORD (12+ characters) to create test users");
             return;
         }
-        seed("pastor@example.com", "Test Pastor", Role.PASTOR);
-        seed("leader@example.com", "Test Leader", Role.LEADER);
+
+        Church church = churchRepository.findByNameIgnoreCase("Demo Church")
+                .orElseGet(() -> churchRepository.save(new Church("Demo Church")));
+
+        User pastor = seed("pastor@example.com", "Test Pastor", Role.PASTOR);
+        if (!pastorRepository.existsById(pastor.getId())) {
+            pastorRepository.save(new Pastor(pastor.getId(), church));
+            log.info("Dev seed: {} linked to {}", pastor.getEmail(), church.getName());
+        }
+
+        User leader = seed("leader@example.com", "Test Leader", Role.LEADER);
+        if (!leaderRepository.existsById(leader.getId())) {
+            leaderRepository.save(new CellGroupLeader(leader.getId(), church));
+            pastorLeaderRepository.save(new PastorLeader(leader.getId(), pastor.getId()));
+            log.info("Dev seed: {} linked to {} under pastor {}",
+                    leader.getEmail(), church.getName(), pastor.getEmail());
+        }
+
         seed("member@example.com", "Test Member", Role.MEMBER);
     }
 
-    private void seed(String email, String fullName, Role role) {
-        if (userRepository.existsByEmail(email)) {
-            return;
-        }
-        userRepository.save(new User(email, passwordEncoder.encode(password), fullName, role));
-        log.info("Dev seed user created: {} ({})", email, role);
+    private User seed(String email, String fullName, Role role) {
+        return userRepository.findByEmail(email).orElseGet(() -> {
+            log.info("Dev seed user created: {} ({})", email, role);
+            return userRepository.save(new User(email, passwordEncoder.encode(password), fullName, role));
+        });
     }
 }

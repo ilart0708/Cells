@@ -21,3 +21,6 @@ app:
     cookie-secure: ${REFRESH_COOKIE_SECURE:true}
   dev-seed:
     password: ${DEV_SEED_PASSWORD:}
+  invitation:
+    ttl: 7d
+    base-url: ${APP_FRONTEND_URL:http://localhost:5173}

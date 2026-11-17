@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import * as authApi from '../api/auth'
+import * as invitationsApi from '../api/invitations'
 
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref(null) // memory only: never written to localStorage
@@ -23,6 +24,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(email, password) {
     applySession(await authApi.login(email, password))
+  }
+
+  /** Accepting an invitation creates the account and logs the person in. */
+  async function acceptInvitation(token, fullName, password) {
+    applySession(await invitationsApi.acceptInvitation(token, fullName, password))
   }
 
   // Many requests can hit a 401 at the same moment. They all share ONE refresh call,
@@ -60,5 +66,16 @@ export const useAuthStore = defineStore('auth', () => {
     clearSession()
   }
 
-  return { accessToken, user, isAuthenticated, role, login, logout, refresh, restoreSession, clearSession }
+  return {
+    accessToken,
+    user,
+    isAuthenticated,
+    role,
+    login,
+    acceptInvitation,
+    logout,
+    refresh,
+    restoreSession,
+    clearSession,
+  }
 })

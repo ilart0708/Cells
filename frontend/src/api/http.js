@@ -37,7 +37,7 @@ export async function rawRequest(path, { method = 'GET', body, token } = {}) {
   if (token) headers.Authorization = `Bearer ${token}`
 
   const init = { method, headers, credentials: 'same-origin' }
-  if (body !== undefined) init.body = JSON.stringify(body)
+    if (body !== undefined) init.body = JSON.stringify(body)
 
   let response
   try {

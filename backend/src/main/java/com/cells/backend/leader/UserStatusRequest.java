@@ -1,0 +1,6 @@
+package com.cells.backend.user;
+
+import jakarta.validation.constraints.NotNull;
+
+public record UserStatusRequest(@NotNull UserStatus status) {
+}
