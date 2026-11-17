@@ -48,6 +48,11 @@ const router = createRouter({
           name: 'pastor-dashboard',
           component: () => import('../views/PastorDashboardView.vue'),
         },
+        {
+          path: 'leaders',
+          name: 'pastor-leaders',
+          component: () => import('../views/pastor/MyLeadersView.vue'),
+        },
       ],
     },
     {
