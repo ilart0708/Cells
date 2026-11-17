@@ -83,6 +83,22 @@ describe('router guards', () => {
     expect(router.currentRoute.value.path).toBe('/pastor')
   })
 
+    it('lets a pastor open the nested pastor pages', async () => {
+    signIn(auth, 'PASTOR')
+
+    await router.push('/pastor/leaders')
+
+    expect(router.currentRoute.value.path).toBe('/pastor/leaders')
+  })
+
+  it('keeps other roles out of the nested pastor pages', async () => {
+    signIn(auth, 'LEADER')
+
+    await router.push('/pastor/leaders')
+
+    expect(router.currentRoute.value.path).toBe('/leader')
+  })
+
   for (const [role, path] of Object.entries(AREAS)) {
     it(`${role} reaches ${path}`, async () => {
       signIn(auth, role)

@@ -11,6 +11,7 @@ import ConfirmDialog from '../../components/ConfirmDialog.vue'
 import InviteLinkPanel from '../../components/InviteLinkPanel.vue'
 import ListState from '../../components/ListState.vue'
 import PaginationBar from '../../components/PaginationBar.vue'
+import StatusConfirmDialog from '../../components/StatusConfirmDialog.vue'
 import StatusPill from '../../components/StatusPill.vue'
 import TextField from '../../components/TextField.vue'
 import { usePagedList } from '../../composables/usePagedList'
@@ -271,15 +272,10 @@ watch(
       </form>
     </BaseDialog>
 
-    <ConfirmDialog
+    <StatusConfirmDialog
       v-model:open="toggle.open"
-      :title="`${toggle.nextStatus === 'DISABLED' ? 'Disable' : 'Enable'} ${toggle.target?.fullName ?? ''}?`"
-      :message="
-        toggle.nextStatus === 'DISABLED'
-          ? 'They will no longer be able to sign in, and anyone already signed in is signed out within 15 minutes. Their data is kept and you can enable them again at any time.'
-          : 'They will be able to sign in again.'
-      "
-      :confirm-label="toggle.nextStatus === 'DISABLED' ? 'Disable' : 'Enable'"
+      :name="toggle.target?.fullName ?? ''"
+      :next-status="toggle.nextStatus"
       :busy="toggle.busy"
       :error="toggle.error"
       @confirm="toggle.confirm"
