@@ -1,6 +1,7 @@
 package com.cells.backend.invitation;
 
 import com.cells.backend.church.Church;
+import com.cells.backend.room.Room;
 import com.cells.backend.user.Role;
 import jakarta.persistence.*;
 
@@ -31,6 +32,11 @@ public class Invitation {
     @JoinColumn(name = "church_id", nullable = false)
     private Church church;
 
+    // Only member invitations have a room.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    private Room room;
+
     @Column(name = "invited_by", nullable = false)
     private Long invitedBy;
 
@@ -52,11 +58,17 @@ public class Invitation {
 
     public Invitation(String tokenHash, String email, String fullName, Role role,
                       Church church, Long invitedBy, Instant expiresAt) {
+        this(tokenHash, email, fullName, role, church, null, invitedBy, expiresAt);
+    }
+
+    public Invitation(String tokenHash, String email, String fullName, Role role,
+                      Church church, Room room, Long invitedBy, Instant expiresAt) {
         this.tokenHash = tokenHash;
         this.email = email;
         this.fullName = fullName;
         this.role = role;
         this.church = church;
+        this.room = room;
         this.invitedBy = invitedBy;
         this.expiresAt = expiresAt;
     }
@@ -66,6 +78,7 @@ public class Invitation {
     public String getFullName() { return fullName; }
     public Role getRole() { return role; }
     public Church getChurch() { return church; }
+    public Room getRoom() { return room; }
     public Long getInvitedBy() { return invitedBy; }
     public Instant getExpiresAt() { return expiresAt; }
     public Instant getCreatedAt() { return createdAt; }
