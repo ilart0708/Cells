@@ -1,1 +1,38 @@
 @import "tailwindcss";
+
+@theme {
+  --color-navy-950: #071433;
+  --color-navy-900: #0e2250;
+  --color-navy-700: #1b3a78;
+  --color-navy-500: #3d5fa5;
+  --color-gold-500: #d4af37;
+  --color-gold-700: #8a6d12;
+  --color-gold-100: #fbefc4;
+  --color-gold-50: #fbf7e8;
+  --color-app-bg: #f4f6fb;
+  --color-line: #dce3f2;
+  --color-line-input: #c5cfe6;
+  --color-track: #e3e8f4;
+  --color-muted: #47557a;
+  --color-on-navy: #e6ecfa;
+  --color-on-navy-soft: #c9d4f0;
+
+  --font-heading: "Montserrat", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-app-bg);
+  color: var(--color-navy-900);
+}
+
+/* Backdrop gradient (hero sections, login) */
+.bg-brand-backdrop {
+  background: radial-gradient(ellipse at 50% 62%, #1b3a78 0%, #0e2250 45%, #071433 100%);
+}
+
+/* Hero card gradient (room card) */
+.bg-room-card {
+  background: linear-gradient(135deg, #0e2250, #1b3a78);
+}

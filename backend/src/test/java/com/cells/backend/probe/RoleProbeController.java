@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** TEMPORARY: proves role checks work. Delete at the end of Phase 2. */
+/**
+ * TEST-ONLY endpoints used by RoleAccessTest and EndpointSecurityGuardTest.
+ * They live in src/test, so they are never part of the production application.
+ */
 @RestController
 @RequestMapping("/api/v1/probe")
 public class RoleProbeController {
