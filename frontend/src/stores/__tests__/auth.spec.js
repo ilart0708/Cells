@@ -2,12 +2,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import * as authApi from '../../api/auth'
 import { useAuthStore } from '../auth'
+import * as invitationsApi from '../../api/invitations'
 
 vi.mock('../../api/auth', () => ({
   login: vi.fn(),
   refresh: vi.fn(),
   logout: vi.fn(),
   me: vi.fn(),
+}))
+
+vi.mock('../../api/invitations', () => ({
+  acceptInvitation: vi.fn(),
+  previewInvitation: vi.fn(),
 }))
 
 const session = {
@@ -44,6 +50,7 @@ describe('auth store', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
   })
+
 
   it('starts logged out', () => {
     expect(auth.isAuthenticated).toBe(false)
@@ -117,5 +124,24 @@ describe('auth store', () => {
     await auth.logout()
 
     expect(auth.isAuthenticated).toBe(false)
+  })
+
+    it('stores the session after accepting an invitation, without writing to browser storage', async () => {
+    invitationsApi.acceptInvitation.mockResolvedValue({
+      ...session,
+      user: { ...session.user, role: 'PASTOR' },
+    })
+
+    await auth.acceptInvitation('link-token', 'Pastor John', 'LongEnough#2026')
+
+    expect(invitationsApi.acceptInvitation).toHaveBeenCalledWith(
+      'link-token',
+      'Pastor John',
+      'LongEnough#2026',
+    )
+    expect(auth.isAuthenticated).toBe(true)
+    expect(auth.role).toBe('PASTOR')
+    expect(fakeLocalStorage.setItem).not.toHaveBeenCalled()
+    expect(fakeSessionStorage.setItem).not.toHaveBeenCalled()
   })
 })

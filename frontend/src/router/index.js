@@ -21,6 +21,21 @@ const router = createRouter({
           name: 'admin-dashboard',
           component: () => import('../views/AdminDashboardView.vue'),
         },
+        {
+          path: 'churches',
+          name: 'admin-churches',
+          component: () => import('../views/admin/ChurchManagementView.vue'),
+        },
+        {
+          path: 'pastors',
+          name: 'admin-pastors',
+          component: () => import('../views/admin/PastorManagementView.vue'),
+        },
+        {
+          path: 'leaders',
+          name: 'admin-leaders',
+          component: () => import('../views/admin/LeaderManagementView.vue'),
+        },
       ],
     },
     {
@@ -58,6 +73,12 @@ const router = createRouter({
           component: () => import('../views/MemberDashboardView.vue'),
         },
       ],
+    },
+    {
+      path: '/accept-invitation',
+      name: 'accept-invitation',
+      component: () => import('../views/AcceptInvitationView.vue'),
+      meta: { public: true },
     },
     // "/" and unknown paths go to login. The guard below sends a logged-in user
     // from login to their own area, so no extra "home" route is needed.

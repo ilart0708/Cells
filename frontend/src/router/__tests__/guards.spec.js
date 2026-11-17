@@ -50,6 +50,39 @@ describe('router guards', () => {
     expect(router.currentRoute.value.name).toBe('login')
   })
 
+
+    it('lets a logged-out visitor open an invitation link and keeps the fragment', async () => {
+    await router.push('/accept-invitation#token=abc')
+
+    expect(router.currentRoute.value.name).toBe('accept-invitation')
+    expect(router.currentRoute.value.hash).toBe('#token=abc')
+  })
+
+  it('also lets a logged-in user open an invitation link', async () => {
+    signIn(auth, 'ADMIN')
+
+    await router.push('/accept-invitation#token=abc')
+
+    expect(router.currentRoute.value.name).toBe('accept-invitation')
+  })
+
+    it('lets the administrator open the nested admin pages', async () => {
+    signIn(auth, 'ADMIN')
+
+    for (const path of ['/admin/churches', '/admin/pastors', '/admin/leaders']) {
+      await router.push(path)
+      expect(router.currentRoute.value.path).toBe(path)
+    }
+  })
+
+  it('keeps other roles out of the nested admin pages', async () => {
+    signIn(auth, 'PASTOR')
+
+    await router.push('/admin/churches')
+
+    expect(router.currentRoute.value.path).toBe('/pastor')
+  })
+
   for (const [role, path] of Object.entries(AREAS)) {
     it(`${role} reaches ${path}`, async () => {
       signIn(auth, role)
