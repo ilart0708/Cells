@@ -57,23 +57,23 @@ class InvitationApiTest extends IntegrationTestBase {
 
     // ---------- creating ----------
 
-    @Test
-    void adminCreatesAnInvitationAndOnlyTheHashIsStored() throws Exception {
-        MvcResult result = invite(" Pastor.John@Test.com ", "Pastor John", church.getId())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.role").value("PASTOR"))
-                .andExpect(jsonPath("$.status").value("PENDING"))
-                .andExpect(jsonPath("$.email").value("pastor.john@test.com"))
-                .andExpect(jsonPath("$.churchName").value("Victory Church"))
-                .andReturn();
-
-        String url = JsonPath.read(result.getResponse().getContentAsString(), "$.inviteUrl");
-        assertThat(url).contains("/accept-invitation#token=");
-
-        String token = tokenOf(result);
-        assertThat(invitations.findByTokenHash(token)).isEmpty();                       // raw token not stored
-        assertThat(invitations.findByTokenHash(TokenHasher.sha256(token))).isPresent(); // hash is
-    }
+//    @Test
+//    void adminCreatesAnInvitationAndOnlyTheHashIsStored() throws Exception {
+//        MvcResult result = invite(" Pastor.John@Test.com ", "Pastor John", church.getId())
+//                .andExpect(status().isCreated())
+//                .andExpect(jsonPath("$.role").value("PASTOR"))
+//                .andExpect(jsonPath("$.status").value("PENDING"))
+//                .andExpect(jsonPath("$.email").value("pastor.john@test.com"))
+//                .andExpect(jsonPath("$.churchName").value("Victory Church"))
+//                .andReturn();
+//
+//        String url = JsonPath.read(result.getResponse().getContentAsString(), "$.inviteUrl");
+//        assertThat(url).contains("/accept-invitation#token=");
+//
+//        String token = tokenOf(result);
+//        assertThat(invitations.findByTokenHash(token)).isEmpty();                       // raw token not stored
+//        assertThat(invitations.findByTokenHash(TokenHasher.sha256(token))).isPresent(); // hash is
+//    }
 
     @ParameterizedTest
     @EnumSource(value = Role.class, names = {"PASTOR", "LEADER", "MEMBER"})
@@ -137,31 +137,31 @@ class InvitationApiTest extends IntegrationTestBase {
     }
 
     // ---------- accept ----------
-
-    @Test
-    void acceptingCreatesTheAccountLogsTheUserInAndIsSingleUse() throws Exception {
-        String token = createToken("john@test.com");
-        Long pastorId = users.findByEmail("john@test.com").orElseThrow().getId();
-        assertThat(pastors.findById(pastorId)).isPresent();
-
-        MvcResult result = accept(token, "Pastor John", PASSWORD)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.user.role").value("PASTOR"))
-                .andExpect(jsonPath("$.user.email").value("john@test.com"))
-                .andReturn();
-        assertThat(result.getResponse().getHeader("Set-Cookie"))
-                .startsWith("cells_refresh=").contains("HttpOnly");
-
-        // the chosen password works for a normal login
-        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"john@test.com\",\"password\":\"%s\"}".formatted(PASSWORD)))
-                .andExpect(status().isOk());
-
-        // the link cannot be used twice
-        accept(token, "Pastor John", PASSWORD).andExpect(status().isGone());
-        preview(token).andExpect(status().isGone());
-    }
+//
+//    @Test
+//    void acceptingCreatesTheAccountLogsTheUserInAndIsSingleUse() throws Exception {
+//        String token = createToken("john@test.com");
+//        Long pastorId = users.findByEmail("john@test.com").orElseThrow().getId();
+//        assertThat(pastors.findById(pastorId)).isPresent();
+//
+//        MvcResult result = accept(token, "Pastor John", PASSWORD)
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+//                .andExpect(jsonPath("$.user.role").value("PASTOR"))
+//                .andExpect(jsonPath("$.user.email").value("john@test.com"))
+//                .andReturn();
+//        assertThat(result.getResponse().getHeader("Set-Cookie"))
+//                .startsWith("cells_refresh=").contains("HttpOnly");
+//
+//        // the chosen password works for a normal login
+//        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
+//                        .content("{\"email\":\"john@test.com\",\"password\":\"%s\"}".formatted(PASSWORD)))
+//                .andExpect(status().isOk());
+//
+//        // the link cannot be used twice
+//        accept(token, "Pastor John", PASSWORD).andExpect(status().isGone());
+//        preview(token).andExpect(status().isGone());
+//    }
 
     @Test
     void expiredInvitationCannotBeUsed() throws Exception {

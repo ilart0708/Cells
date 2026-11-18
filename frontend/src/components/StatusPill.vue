@@ -11,6 +11,7 @@ const LABELS = {
   REVOKED: 'Revoked',
   DISABLED: 'Disabled',
   ARCHIVED: 'Archived',
+  CANCELLED: 'Cancelled',
 }
 const POSITIVE = new Set(['ACTIVE', 'ACCEPTED'])
 

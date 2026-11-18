@@ -3,10 +3,10 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ApiError } from '../../api/http'
 import { getMyRoom } from '../../api/memberRooms'
-import { btnOutline } from '../../components/buttonClasses'
 import ParticipationBadge from '../../components/ParticipationBadge.vue'
 import RoomTitle from '../../components/RoomTitle.vue'
 import { formatDate, memberLabel } from '../../utils/format'
+import { btnOutline, btnPrimary } from '../../components/buttonClasses'
 
 const props = defineProps({ roomId: { type: Number, required: true } })
 
@@ -84,6 +84,14 @@ watch(() => props.roomId, () => load())
             Your number: {{ room.myParticipationNumber }}
           </span>
         </p>
+     <div class="mt-4 flex flex-wrap gap-2">
+       <RouterLink :to="{ name: 'member-devotion-current', params: { roomId: room.roomId } }" :class="btnPrimary">
+         Today’s devotion
+       </RouterLink>
+       <RouterLink :to="{ name: 'member-devotions', params: { roomId: room.roomId } }" :class="btnOutline">
+         Past devotions
+       </RouterLink>
+     </div>
       </section>
 
       <section class="overflow-hidden rounded-[18px] border border-line bg-white" aria-labelledby="order-title">

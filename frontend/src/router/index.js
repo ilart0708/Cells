@@ -76,6 +76,27 @@ const router = createRouter({
           component: () => import('../views/leader/RoomDetailView.vue'),
           props: (route) => ({ roomId: Number(route.params.roomId) }),
         },
+        {
+          path: 'rooms/:roomId(\\d+)/devotions',
+          name: 'leader-devotions',
+          component: () => import('../views/leader/DevotionHistoryView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/devotions/new',
+          name: 'leader-devotion-new',
+          component: () => import('../views/leader/DevotionFormView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId), devotionId: null }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/devotions/:devotionId(\\d+)/edit',
+          name: 'leader-devotion-edit',
+          component: () => import('../views/leader/DevotionFormView.vue'),
+          props: (route) => ({
+            roomId: Number(route.params.roomId),
+            devotionId: Number(route.params.devotionId),
+          }),
+        },
       ],
     },
     {
@@ -93,6 +114,27 @@ const router = createRouter({
           name: 'member-room',
           component: () => import('../views/member/MemberRoomView.vue'),
           props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/devotion',
+          name: 'member-devotion-current',
+          component: () => import('../views/member/MemberCurrentDevotionView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/devotions',
+          name: 'member-devotions',
+          component: () => import('../views/member/MemberDevotionHistoryView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/devotions/:devotionId(\\d+)',
+          name: 'member-devotion',
+          component: () => import('../views/member/MemberDevotionView.vue'),
+          props: (route) => ({
+            roomId: Number(route.params.roomId),
+            devotionId: Number(route.params.devotionId),
+          }),
         },
       ],
     },

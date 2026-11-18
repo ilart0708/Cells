@@ -309,6 +309,9 @@ watch(
           <StatusPill :status="room.status" />
         </div>
         <p class="mt-2 text-sm text-on-navy-soft">{{ memberLabel(draft.length) }}</p>
+        <RouterLink :to="{ name: 'leader-devotions', params: { roomId: room.id } }" :class="[btnPrimary, 'mt-4']">
+          Devotions
+        </RouterLink>
       </section>
 
       <p v-if="!editable" role="status" class="rounded-xl border border-line bg-white px-4 py-3 text-sm text-muted">

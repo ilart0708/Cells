@@ -106,4 +106,11 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST, "Invalid value for '" + ex.getName() + "'.");
     }
+
+    @ExceptionHandler(InvalidFieldsException.class)
+    public ProblemDetail handleInvalidFields(InvalidFieldsException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed.");
+        problem.setProperty("errors", ex.getErrors());
+        return problem;
+    }
 }
