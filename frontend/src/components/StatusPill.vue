@@ -10,6 +10,7 @@ const LABELS = {
   EXPIRED: 'Expired',
   REVOKED: 'Revoked',
   DISABLED: 'Disabled',
+  ARCHIVED: 'Archived',
 }
 const POSITIVE = new Set(['ACTIVE', 'ACCEPTED'])
 

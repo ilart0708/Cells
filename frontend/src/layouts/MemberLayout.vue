@@ -1,7 +1,9 @@
 <script setup>
 import AppShell from '../components/AppShell.vue'
 
-const navItems = [{ label: 'Dashboard', to: { name: 'member-dashboard' } }]
+const navItems = [
+  { label: 'Dashboard', to: { name: 'member-dashboard' }, alsoActiveOn: ['member-room'] },
+]
 </script>
 
 <template>

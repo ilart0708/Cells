@@ -65,6 +65,17 @@ const router = createRouter({
           name: 'leader-dashboard',
           component: () => import('../views/LeaderDashboardView.vue'),
         },
+        {
+          path: 'rooms',
+          name: 'leader-rooms',
+          component: () => import('../views/leader/MyRoomsView.vue'),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)',
+          name: 'leader-room',
+          component: () => import('../views/leader/RoomDetailView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
       ],
     },
     {
@@ -75,7 +86,13 @@ const router = createRouter({
         {
           path: '',
           name: 'member-dashboard',
-          component: () => import('../views/MemberDashboardView.vue'),
+          component: () => import('../views/member/MemberDashboardView.vue'),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)',
+          name: 'member-room',
+          component: () => import('../views/member/MemberRoomView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
         },
       ],
     },
