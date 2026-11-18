@@ -1,14 +1,22 @@
 <script setup>
-import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { ROLE_LABEL } from '../constants/roles'
 
 defineProps({
-  navItems: { type: Array, required: true }, // [{ label, to }]
+  // [{ label, to, alsoActiveOn? }]. alsoActiveOn lists route names (such as a detail page)
+  // that keep this item highlighted.
+  navItems: { type: Array, required: true },
 })
 
 const auth = useAuthStore()
+const route = useRoute()
 const router = useRouter()
+
+function currentState(item, linkIsActive) {
+  if (linkIsActive) return 'page'
+  return item.alsoActiveOn?.includes(route.name) ? 'true' : undefined
+}
 
 async function logout() {
   await auth.logout()
@@ -27,10 +35,10 @@ async function logout() {
         <RouterLink v-for="item in navItems" :key="item.label" :to="item.to" custom v-slot="{ href, navigate, isActive }">
           <a
             :href="href"
-            :aria-current="isActive ? 'page' : undefined"
+            :aria-current="currentState(item, isActive)"
             :class="[
               'flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold',
-              isActive ? 'bg-gold-500/15 text-gold-500' : 'text-on-navy hover:bg-white/10',
+              currentState(item, isActive) ? 'bg-gold-500/15 text-gold-500' : 'text-on-navy hover:bg-white/10',
             ]"
             @click="navigate"
           >
@@ -74,10 +82,10 @@ async function logout() {
       <RouterLink v-for="item in navItems" :key="item.label" :to="item.to" custom v-slot="{ href, navigate, isActive }">
         <a
           :href="href"
-          :aria-current="isActive ? 'page' : undefined"
+          :aria-current="currentState(item, isActive)"
           :class="[
             'flex flex-1 items-center justify-center text-xs font-semibold',
-            isActive ? 'text-navy-900' : 'text-muted',
+            currentState(item, isActive) ? 'text-navy-900' : 'text-muted',
           ]"
           @click="navigate"
         >

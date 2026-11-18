@@ -49,6 +49,22 @@ public class LeaderRoomMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(added);
     }
 
+    /** Sets the participation order. Returns the room's new roster. */
+    @PutMapping("/order")
+    public List<RoomMemberResponse> reorder(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable Long roomId,
+            @Valid @RequestBody ReorderRequest request) {
+        return roomMemberService.reorder(leaderId(jwt), roomId, request.memberIds());
+    }
+
+    /** Removes a member from the room. The person's account and the membership history are kept. */
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<Void> remove(
+            @AuthenticationPrincipal Jwt jwt, @PathVariable Long roomId, @PathVariable Long memberId) {
+        roomMemberService.remove(leaderId(jwt), roomId, memberId);
+        return ResponseEntity.noContent().build();
+    }
+
     private static Long leaderId(Jwt jwt) {
         return Long.valueOf(jwt.getSubject());
     }

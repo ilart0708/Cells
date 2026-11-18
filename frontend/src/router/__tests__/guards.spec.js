@@ -99,6 +99,39 @@ describe('router guards', () => {
     expect(router.currentRoute.value.path).toBe('/leader')
   })
 
+    it('lets a leader open the nested leader pages', async () => {
+    signIn(auth, 'LEADER')
+
+    await router.push('/leader/rooms')
+
+    expect(router.currentRoute.value.path).toBe('/leader/rooms')
+  })
+
+  it('keeps other roles out of the nested leader pages', async () => {
+    signIn(auth, 'PASTOR')
+
+    await router.push('/leader/rooms')
+
+    expect(router.currentRoute.value.path).toBe('/pastor')
+  })
+
+    it('lets a leader open a room page', async () => {
+    signIn(auth, 'LEADER')
+
+    await router.push('/leader/rooms/5')
+
+    expect(router.currentRoute.value.name).toBe('leader-room')
+    expect(router.currentRoute.value.params.roomId).toBe('5')
+  })
+
+  it('does not accept a room id that is not a number', async () => {
+    signIn(auth, 'LEADER')
+
+    await router.push('/leader/rooms/abc')
+
+    expect(router.currentRoute.value.path).toBe('/leader')
+  })
+
   for (const [role, path] of Object.entries(AREAS)) {
     it(`${role} reaches ${path}`, async () => {
       signIn(auth, role)

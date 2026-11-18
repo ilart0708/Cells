@@ -5,6 +5,7 @@ import { ApiError } from '../api/http'
 import { previewInvitation } from '../api/invitations'
 import { ROLE_HOME, ROLE_LABEL } from '../constants/roles'
 import { useAuthStore } from '../stores/auth'
+import RoomTitle from '../components/RoomTitle.vue'
 
 const PASSWORD_MIN = 12
 const PASSWORD_MAX = 72
@@ -147,7 +148,19 @@ async function submit() {
         <template v-else>
           <div class="bg-room-card p-5 text-white">
             <p class="text-xs font-bold uppercase tracking-[2px] text-gold-500">You’re invited</p>
-            <h1 class="mt-1 text-xl font-bold">{{ invitation.churchName }}</h1>
+
+            <!-- A member invitation names the room and its leader -->
+            <div v-if="invitation.roomName && invitation.leaderName" class="mt-2">
+              <RoomTitle
+                :church-name="invitation.churchName"
+                :room-name="invitation.roomName"
+                :leader-name="invitation.leaderName"
+                :level="1"
+                tone="dark"
+              />
+            </div>
+            <h1 v-else class="mt-1 text-xl font-bold">{{ invitation.churchName }}</h1>
+
             <p class="mt-1 text-sm text-on-navy-soft">
               Joining as {{ ROLE_LABEL[invitation.role] }}
             </p>
