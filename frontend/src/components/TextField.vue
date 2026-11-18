@@ -10,6 +10,9 @@ const props = defineProps({
   required: { type: Boolean, default: false },
   autocomplete: { type: String, default: undefined },
   maxlength: { type: [Number, String], default: undefined },
+  min: { type: String, default: undefined },
+  max: { type: String, default: undefined },
+  inputmode: { type: String, default: undefined },
 })
 
 const model = defineModel({ type: String, default: '' })
@@ -33,6 +36,9 @@ const describedBy = computed(
       :required="required"
       :autocomplete="autocomplete"
       :maxlength="maxlength"
+      :min="min"
+      :max="max"
+      :inputmode="inputmode"
       :aria-invalid="error ? 'true' : 'false'"
       :aria-describedby="describedBy"
       :class="[
