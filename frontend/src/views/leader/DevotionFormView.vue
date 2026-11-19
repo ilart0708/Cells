@@ -296,8 +296,22 @@ watch(() => [props.roomId, props.devotionId], load)
     </div>
 
     <div v-else-if="state === 'locked'" role="status" class="rounded-[18px] border border-line bg-white p-6 text-center">
-      <p class="font-semibold text-navy-900">This devotion can no longer be changed.</p>
-      <p class="mt-1 text-sm text-muted">Devotions from earlier days, and cancelled ones, are part of the history.</p>
+      <template v-if="devotion && devotion.submissionCount > 0 && devotion.status === 'ACTIVE' && devotion.date >= today">
+        <p class="font-semibold text-navy-900">This devotion can no longer be changed.</p>
+        <p class="mt-1 text-sm text-muted">
+          Members have already shared their understanding of it, so their answers always match what they were asked.
+        </p>
+        <RouterLink
+          :to="{ name: 'leader-answers', params: { roomId, devotionId: devotion.id } }"
+          :class="[btnOutline, 'mt-4']"
+        >
+          Read the answers
+        </RouterLink>
+      </template>
+      <template v-else>
+        <p class="font-semibold text-navy-900">This devotion can no longer be changed.</p>
+        <p class="mt-1 text-sm text-muted">Devotions from earlier days, and cancelled ones, are part of the history.</p>
+      </template>
     </div>
 
     <template v-else>
