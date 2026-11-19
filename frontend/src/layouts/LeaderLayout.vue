@@ -6,7 +6,14 @@ const navItems = [
   {
     label: 'My Rooms',
     to: { name: 'leader-rooms' },
-    alsoActiveOn: ['leader-room', 'leader-devotions', 'leader-devotion-new', 'leader-devotion-edit'],
+    alsoActiveOn: [
+      'leader-room',
+      'leader-today',
+      'leader-devotions',
+      'leader-devotion-new',
+      'leader-devotion-edit',
+      'leader-answers',
+    ],
   },
 ]
 </script>

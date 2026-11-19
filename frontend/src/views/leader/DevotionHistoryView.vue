@@ -178,10 +178,22 @@ watch(
                   {{ devotion.reference }}<template v-if="devotion.title"> · {{ devotion.title }}</template>
                 </p>
                 <LevelPill :level="devotion.learningLevel" />
+                <p v-if="devotion.submissionCount > 0" class="text-sm text-muted">
+                  {{ devotion.submissionCount }} {{ devotion.submissionCount === 1 ? 'answer' : 'answers' }}<template
+                    v-if="devotion.status === 'ACTIVE' && !devotion.editable && relation(devotion.date) !== 'past'"
+                  > · locked, because members have already shared</template>
+                </p>
               </div>
 
               <StatusPill v-if="devotion.status === 'CANCELLED'" status="CANCELLED" />
 
+              <RouterLink
+                v-if="devotion.submissionCount > 0"
+                :to="{ name: 'leader-answers', params: { roomId, devotionId: devotion.id } }"
+                :class="btnOutline"
+              >
+                Answers<span class="sr-only"> for {{ formatDay(devotion.date) }}</span>
+              </RouterLink>
               <template v-if="canChange">
                 <RouterLink
                   v-if="devotion.editable"

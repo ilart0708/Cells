@@ -97,6 +97,21 @@ const router = createRouter({
             devotionId: Number(route.params.devotionId),
           }),
         },
+        {
+          path: 'rooms/:roomId(\\d+)/today',
+          name: 'leader-today',
+          component: () => import('../views/leader/LeaderTodayView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/devotions/:devotionId(\\d+)/answers',
+          name: 'leader-answers',
+          component: () => import('../views/leader/LeaderAnswersView.vue'),
+          props: (route) => ({
+            roomId: Number(route.params.roomId),
+            devotionId: Number(route.params.devotionId),
+          }),
+        },
       ],
     },
     {

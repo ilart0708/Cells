@@ -92,6 +92,7 @@ async function open() {
         props: (route) => ({ roomId: Number(route.params.roomId) }),
       },
       { path: '/leader/rooms/:roomId(\\d+)/devotions', name: 'leader-devotions', component: Blank },
+      { path: '/leader/rooms/:roomId(\\d+)/today', name: 'leader-today', component: Blank },
     ],
   })
   await router.push('/leader/rooms/5')

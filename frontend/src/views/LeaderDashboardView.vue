@@ -1,11 +1,7 @@
 <script setup>
 import PlaceholderDashboard from '../components/PlaceholderDashboard.vue'
 
-const pages = [
-  { name: 'Daily Exemption Controls', phase: 6 },
-  { name: 'Member Submissions', phase: 6 },
-  { name: 'Group Summary / Personal Reflection', phase: 7 },
-]
+const pages = [{ name: 'Group Summary / Personal Reflection', phase: 7 }]
 </script>
 
 <template>
