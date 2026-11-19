@@ -4,7 +4,8 @@ import { RouterLink } from 'vue-router'
 import { ApiError } from '../../api/http'
 import { getMemberDevotion } from '../../api/memberDevotions'
 import { getMyRoom } from '../../api/memberRooms'
-import { btnOutline } from '../../components/buttonClasses'
+import { btnOutline, btnPrimary } from '../../components/buttonClasses'
+import SubmissionsPanel from '../../components/SubmissionsPanel.vue'
 import DevotionCard from '../../components/DevotionCard.vue'
 import PageState from '../../components/PageState.vue'
 import RoomTitle from '../../components/RoomTitle.vue'
@@ -71,6 +72,14 @@ watch(() => [props.roomId, props.devotionId], load)
         :instructions="devotion.instructions ?? ''"
         :date="devotion.date"
       />
+
+      <SubmissionsPanel :room-id="roomId" :devotion-id="devotionId">
+        <template #locked>
+          <RouterLink :to="{ name: 'member-devotion-current', params: { roomId } }" :class="btnPrimary">
+            Go to today’s devotion
+          </RouterLink>
+        </template>
+      </SubmissionsPanel>
 
       <RouterLink :to="{ name: 'member-devotions', params: { roomId } }" :class="btnOutline">
         All devotions

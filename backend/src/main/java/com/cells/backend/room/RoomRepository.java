@@ -53,4 +53,10 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     boolean existsByLeaderIdAndStatusAndNameIgnoreCaseAndIdNot(
             Long leaderId, RoomStatus status, String name, Long id);
+
+    // Row lock for member actions (submitting). It is the SAME lock the leader's roster changes take,
+    // so a submission and a reorder or removal in one room always take turns.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Room r where r.id = :id")
+    Optional<Room> findByIdForUpdate(@Param("id") Long id);
 }
