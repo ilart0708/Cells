@@ -6,9 +6,12 @@ import com.cells.backend.common.DuplicateResourceException;
 import com.cells.backend.common.InvalidFieldsException;
 import com.cells.backend.common.PageResponse;
 import com.cells.backend.common.ResourceNotFoundException;
+import com.cells.backend.participation.DevotionSubmissionRepository;
+import com.cells.backend.participation.SubmissionCount;
 import com.cells.backend.room.Room;
 import com.cells.backend.room.RoomRepository;
 import com.cells.backend.room.RoomStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /** Every method takes the leader's id from the token and only ever touches that leader's rooms. */
 @Service
@@ -28,11 +34,16 @@ public class DevotionService {
     public static final int MAX_DAYS_AHEAD = 14;
 
     private final DevotionRepository devotionRepository;
+    private final DevotionSubmissionRepository submissionRepository;
     private final RoomRepository roomRepository;
     private final Clock clock;
 
-    public DevotionService(DevotionRepository devotionRepository, RoomRepository roomRepository, Clock clock) {
+    public DevotionService(DevotionRepository devotionRepository,
+                           DevotionSubmissionRepository submissionRepository,
+                           RoomRepository roomRepository,
+                           Clock clock) {
         this.devotionRepository = devotionRepository;
+        this.submissionRepository = submissionRepository;
         this.roomRepository = roomRepository;
         this.clock = clock;
     }
@@ -51,7 +62,7 @@ public class DevotionService {
                 roomId, request.date(), request.book(), request.chapter(),
                 request.verseStart(), normalizedEnd(request), blankToNull(request.title()),
                 request.learningLevel(), blankToNull(request.instructions()), leaderId));
-        return DevotionResponse.from(saved, today);
+        return DevotionResponse.from(saved, today, 0);
     }
 
     @Transactional(readOnly = true)
@@ -61,26 +72,34 @@ public class DevotionService {
         PageRequest pageable = PageRequest.of(
                 Math.max(page, 0), Math.min(Math.max(size, 1), MAX_PAGE_SIZE),
                 Sort.by(Sort.Direction.DESC, "devotionDate").and(Sort.by(Sort.Direction.DESC, "id")));
-        return PageResponse.from(devotionRepository
-                .findByRoomIdAndStatusIn(roomId, filter.statuses(), pageable)
-                .map(devotion -> DevotionResponse.from(devotion, today)));
+
+        Page<Devotion> found = devotionRepository.findByRoomIdAndStatusIn(roomId, filter.statuses(), pageable);
+        Map<Long, Long> answers = answerCounts(found.getContent());
+        return PageResponse.from(found.map(devotion -> DevotionResponse.from(
+                devotion, today, answers.getOrDefault(devotion.getId(), 0L).intValue())));
     }
 
     @Transactional(readOnly = true)
     public DevotionResponse get(Long leaderId, Long roomId, Long devotionId) {
         ownRoom(leaderId, roomId);
-        return DevotionResponse.from(find(roomId, devotionId), today());
+        Devotion devotion = find(roomId, devotionId);
+        return DevotionResponse.from(devotion, today(), answerCount(devotionId));
     }
 
     @Transactional
     public DevotionResponse update(Long leaderId, Long roomId, Long devotionId, DevotionRequest request) {
-        requireActive(ownRoom(leaderId, roomId));
+        // The room lock is the one a member's submission takes, so "has anyone answered?" below is
+        // true at this very moment and cannot change before we are done.
+        requireActive(lockOwnRoom(leaderId, roomId));
         Devotion devotion = find(roomId, devotionId);
         LocalDate today = today();
 
-        // Phase 6 adds "...and no member has submitted yet" to this rule.
         if (!isEditable(devotion, today)) {
             throw new BusinessRuleException("This devotion can no longer be changed.");
+        }
+        if (answerCount(devotionId) > 0) {
+            throw new BusinessRuleException(
+                    "Members have already shared their understanding of this devotion, so it can no longer be changed.");
         }
         validate(request, today);
 
@@ -99,21 +118,26 @@ public class DevotionService {
                 request.date(), request.book(), request.chapter(),
                 request.verseStart(), normalizedEnd(request), blankToNull(request.title()),
                 request.learningLevel(), blankToNull(request.instructions()), Instant.now());
-        return DevotionResponse.from(devotion, today);
+        return DevotionResponse.from(devotion, today, 0);
     }
 
     @Transactional
     public DevotionResponse setStatus(Long leaderId, Long roomId, Long devotionId, DevotionStatus status) {
-        requireActive(ownRoom(leaderId, roomId));
+        requireActive(lockOwnRoom(leaderId, roomId));
         Devotion devotion = find(roomId, devotionId);
         LocalDate today = today();
         Instant now = Instant.now();
+        int answers = answerCount(devotionId);
 
         if (status == DevotionStatus.CANCELLED) {
             if (devotion.getStatus() == DevotionStatus.ACTIVE) {
                 if (!isEditable(devotion, today)) {
                     throw new BusinessRuleException(
                             "Devotions from earlier days are part of the history and cannot be cancelled.");
+                }
+                if (answers > 0) {
+                    throw new BusinessRuleException(
+                            "Members have already shared their understanding of this devotion, so it can no longer be cancelled.");
                 }
                 devotion.cancel(now);
             }
@@ -128,7 +152,7 @@ public class DevotionService {
             }
             devotion.restore(now);
         }
-        return DevotionResponse.from(devotion, today);
+        return DevotionResponse.from(devotion, today, answers);
     }
 
     // ---------- rules ----------
@@ -181,9 +205,29 @@ public class DevotionService {
         return LocalDate.now(clock);
     }
 
+    private int answerCount(Long devotionId) {
+        return (int) submissionRepository.countByDevotionId(devotionId);
+    }
+
+    // One query for a whole page, so listing does not ask once per devotion.
+    private Map<Long, Long> answerCounts(List<Devotion> devotions) {
+        if (devotions.isEmpty()) {
+            return Map.of();
+        }
+        List<Long> ids = devotions.stream().map(Devotion::getId).toList();
+        return submissionRepository.countPerDevotion(ids).stream()
+                .collect(Collectors.toMap(SubmissionCount::devotionId, SubmissionCount::count, Long::sum));
+    }
+
     // Another leader's room looks exactly like a room that does not exist.
     private Room ownRoom(Long leaderId, Long roomId) {
         return roomRepository.findByIdAndLeaderId(roomId, leaderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found."));
+    }
+
+    // The same row lock a member's submission takes, so the two always take turns.
+    private Room lockOwnRoom(Long leaderId, Long roomId) {
+        return roomRepository.findOwnForUpdate(roomId, leaderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found."));
     }
 

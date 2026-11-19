@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
-import { getTodayDevotion } from '../../api/memberDevotions'
 import { listMyRooms } from '../../api/memberRooms'
+import { getParticipationBoard } from '../../api/participation'
 import ListState from '../../components/ListState.vue'
 import RoomCard from '../../components/RoomCard.vue'
 import { useAuthStore } from '../../stores/auth'
@@ -12,14 +12,17 @@ const rooms = ref([])
 const loading = ref(true)
 const error = ref('')
 
-// roomId -> today's devotion (null: none posted). A missing key means "not known", so the card says nothing.
+// roomId -> today's devotion (null: none posted) and my status. A missing key means "not known",
+// so the card says nothing.
 const todayByRoom = reactive({})
+const statusByRoom = reactive({})
 
 async function loadToday(list) {
   await Promise.allSettled(
     list.map(async (room) => {
-      const data = await getTodayDevotion(room.roomId)
+      const data = await getParticipationBoard(room.roomId)
       todayByRoom[room.roomId] = data.devotion
+      statusByRoom[room.roomId] = data.myStatus
     }),
   )
 }
@@ -28,6 +31,7 @@ async function load() {
   loading.value = true
   error.value = ''
   Object.keys(todayByRoom).forEach((key) => delete todayByRoom[key])
+  Object.keys(statusByRoom).forEach((key) => delete statusByRoom[key])
   try {
     rooms.value = await listMyRooms()
     loadToday(rooms.value) // not awaited: the cards show up first, the devotion lines follow
@@ -41,7 +45,6 @@ async function load() {
 onMounted(load)
 
 const pages = [
-  { name: 'Submit Understanding', phase: 6 },
   { name: 'Participation History', phase: 7 },
   { name: 'Experience Statistics', phase: 7 },
 ]
@@ -71,6 +74,7 @@ const pages = [
             :key="room.roomId"
             :room="room"
             :today-devotion="todayByRoom[room.roomId]"
+            :my-status="statusByRoom[room.roomId]"
           />
         </div>
       </ListState>
