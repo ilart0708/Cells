@@ -10,9 +10,13 @@ spring:
   flyway:
     enabled: true
 server:
-  forward-headers-strategy: framework
+  forward-headers-strategy: native   # was "framework"
   port: ${PORT:8080}
 app:
+  rate-limit:
+    enabled: true
+    max-requests: 10
+    window: 1m
   jwt:
     secret: ${JWT_SECRET}
     issuer: cells
