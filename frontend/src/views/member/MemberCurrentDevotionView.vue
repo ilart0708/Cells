@@ -16,6 +16,7 @@ import SubmissionsPanel from '../../components/SubmissionsPanel.vue'
 import { usePolling } from '../../composables/usePolling'
 import { formatDay } from '../../utils/dates'
 import { formatDateTime } from '../../utils/format'
+import GuidancePanel from '../../components/GuidancePanel.vue'
 
 const props = defineProps({ roomId: { type: Number, required: true } })
 
@@ -323,6 +324,7 @@ watch(() => props.roomId, loadAll)
           :refresh-key="answersKey"
           hide-own
         />
+        <GuidancePanel :room-id="roomId" :devotion-id="devotion.id" :refresh-key="answersKey" />
       </template>
 
       <section v-else class="rounded-[18px] border border-line bg-white p-6 text-center">

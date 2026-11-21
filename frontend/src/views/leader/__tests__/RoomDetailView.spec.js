@@ -93,6 +93,7 @@ async function open() {
       },
       { path: '/leader/rooms/:roomId(\\d+)/devotions', name: 'leader-devotions', component: Blank },
       { path: '/leader/rooms/:roomId(\\d+)/today', name: 'leader-today', component: Blank },
+      { path: '/leader/rooms/:roomId(\\d+)/board', name: 'leader-board', component: Blank },
     ],
   })
   await router.push('/leader/rooms/5')

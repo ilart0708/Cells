@@ -5,8 +5,16 @@ const navItems = [
   {
     label: 'Dashboard',
     to: { name: 'member-dashboard' },
-    alsoActiveOn: ['member-room', 'member-devotion-current', 'member-devotions', 'member-devotion'],
+    alsoActiveOn: [
+      'member-room',
+      'member-devotion-current',
+      'member-devotions',
+      'member-devotion',
+      'member-board',
+    ],
   },
+  { label: 'Experience', to: { name: 'member-experience' } },
+  { label: 'History', to: { name: 'member-history' }, alsoActiveOn: ['member-history-room'] },
 ]
 </script>
 

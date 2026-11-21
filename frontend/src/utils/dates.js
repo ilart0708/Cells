@@ -23,3 +23,12 @@ export function addDays(iso, days) {
   const { year, month, day } = parts(iso)
   return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10)
 }
+
+
+const monthFormat = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' })
+
+export function formatMonth(iso) {
+  if (!iso) return ''
+  const { year, month } = parts(iso)
+  return monthFormat.format(new Date(year, month - 1, 1))
+}

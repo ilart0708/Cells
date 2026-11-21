@@ -316,6 +316,9 @@ watch(
           <RouterLink :to="{ name: 'leader-devotions', params: { roomId: room.id } }" :class="btnOutline">
             Devotions
           </RouterLink>
+          <RouterLink :to="{ name: 'leader-board', params: { roomId: room.id } }" :class="btnOutline">
+            Growing Together
+          </RouterLink>
         </div>
       </section>
 

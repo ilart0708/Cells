@@ -1,0 +1,35 @@
+spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+  flyway:
+    enabled: true
+server:
+  forward-headers-strategy: framework
+  port: ${PORT:8080}
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: cells
+    access-token-ttl: 15m
+  refresh:
+    ttl: 7d
+    cookie-secure: true
+  invitation:
+    ttl: 7d
+    base-url: ${APP_FRONTEND_URL}
+  bootstrap:
+    admin:
+      email: ${BOOTSTRAP_ADMIN_EMAIL:}
+      password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+      full-name: Platform Administrator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

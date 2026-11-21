@@ -9,6 +9,7 @@ import SubmissionsPanel from '../../components/SubmissionsPanel.vue'
 import DevotionCard from '../../components/DevotionCard.vue'
 import PageState from '../../components/PageState.vue'
 import RoomTitle from '../../components/RoomTitle.vue'
+import GuidancePanel from '../../components/GuidancePanel.vue'
 
 const props = defineProps({
   roomId: { type: Number, required: true },
@@ -80,6 +81,7 @@ watch(() => [props.roomId, props.devotionId], load)
           </RouterLink>
         </template>
       </SubmissionsPanel>
+      <GuidancePanel :room-id="roomId" :devotion-id="devotionId" />
 
       <RouterLink :to="{ name: 'member-devotions', params: { roomId } }" :class="btnOutline">
         All devotions

@@ -13,6 +13,7 @@ const navItems = [
       'leader-devotion-new',
       'leader-devotion-edit',
       'leader-answers',
+      'leader-board',
     ],
   },
 ]
