@@ -1,17 +1,37 @@
 <script setup>
+import { computed, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { ROLE_LABEL } from '../constants/roles'
+import BaseDialog from './BaseDialog.vue'
 
-defineProps({
-  // [{ label, to, alsoActiveOn? }]. alsoActiveOn lists route names (such as a detail page)
-  // that keep this item highlighted.
+const props = defineProps({
+  // [{ label, to, alsoActiveOn?, more? }]. alsoActiveOn lists route names (such as a detail page) that keep this
+  // item highlighted. more: true keeps the item out of the phone's bottom bar and puts it under a "More" tab
+  // (the sidebar on larger screens always lists every item).
   navItems: { type: Array, required: true },
 })
 
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+
+const tabItems = computed(() => props.navItems.filter((item) => !item.more))
+const moreItems = computed(() => props.navItems.filter((item) => item.more))
+const moreOpen = ref(false)
+
+watch(
+  () => route.fullPath,
+  () => {
+    moreOpen.value = false
+  },
+)
+
+function isCurrent(item) {
+  return route.name === item.to.name || Boolean(item.alsoActiveOn?.includes(route.name))
+}
+
+const moreActive = computed(() => moreItems.value.some(isCurrent))
 
 function currentState(item, linkIsActive) {
   if (linkIsActive) return 'page'
@@ -26,7 +46,7 @@ async function logout() {
 
 <template>
   <div class="min-h-screen bg-app-bg md:flex">
-    <!-- Desktop sidebar -->
+    <!-- Desktop sidebar: every item -->
     <aside class="hidden w-48 shrink-0 flex-col bg-navy-900 md:flex">
       <div class="px-5 py-6 font-heading text-xl font-extrabold tracking-[4px] text-white">
         CELLS
@@ -74,12 +94,12 @@ async function logout() {
       </main>
     </div>
 
-    <!-- Mobile bottom tab bar -->
+    <!-- Mobile bottom tab bar: items marked "more" sit under the More tab -->
     <nav
       aria-label="Main"
       class="fixed inset-x-0 bottom-0 flex h-[78px] border-t border-line bg-white md:hidden"
     >
-      <RouterLink v-for="item in navItems" :key="item.label" :to="item.to" custom v-slot="{ href, navigate, isActive }">
+      <RouterLink v-for="item in tabItems" :key="item.label" :to="item.to" custom v-slot="{ href, navigate, isActive }">
         <a
           :href="href"
           :aria-current="currentState(item, isActive)"
@@ -92,6 +112,44 @@ async function logout() {
           {{ item.label }}
         </a>
       </RouterLink>
+      <button
+        v-if="moreItems.length > 0"
+        type="button"
+        aria-haspopup="dialog"
+        :aria-current="moreActive ? 'true' : undefined"
+        :class="[
+          'flex flex-1 items-center justify-center text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-navy-900',
+          moreActive ? 'text-navy-900' : 'text-muted',
+        ]"
+        @click="moreOpen = true"
+      >
+        More
+      </button>
     </nav>
+
+    <BaseDialog v-model:open="moreOpen" title="More">
+      <ul class="space-y-1">
+        <li v-for="item in moreItems" :key="item.label">
+          <RouterLink :to="item.to" custom v-slot="{ href, navigate, isActive }">
+            <a
+              :href="href"
+              :aria-current="currentState(item, isActive)"
+              :class="[
+                'flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold text-navy-900',
+                currentState(item, isActive) ? 'bg-gold-100' : 'hover:bg-app-bg',
+              ]"
+              @click="
+                (event) => {
+                  navigate(event)
+                  moreOpen = false
+                }
+              "
+            >
+              {{ item.label }}
+            </a>
+          </RouterLink>
+        </li>
+      </ul>
+    </BaseDialog>
   </div>
 </template>
