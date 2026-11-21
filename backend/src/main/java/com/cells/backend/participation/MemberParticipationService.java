@@ -13,6 +13,9 @@ import com.cells.backend.room.RoomMemberRepository;
 import com.cells.backend.room.RoomMemberResponse;
 import com.cells.backend.room.RoomRepository;
 import com.cells.backend.room.RoomStatus;
+import com.cells.backend.config.ExperienceProperties;
+import com.cells.backend.experience.ExperienceRecord;
+import com.cells.backend.experience.ExperienceRecordRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,19 +31,23 @@ public class MemberParticipationService {
     private final RoomMemberRepository roomMemberRepository;
     private final DevotionRepository devotionRepository;
     private final DevotionSubmissionRepository submissionRepository;
+    private final ExperienceRecordRepository experienceRepository;
+    private final ExperienceProperties experienceProperties;
     private final ParticipationBoardService boardService;
     private final Clock clock;
 
     public MemberParticipationService(RoomRepository roomRepository,
                                       RoomMemberRepository roomMemberRepository,
                                       DevotionRepository devotionRepository,
-                                      DevotionSubmissionRepository submissionRepository,
+                                      DevotionSubmissionRepository submissionRepository, ExperienceRecordRepository experienceRepository, ExperienceProperties experienceProperties,
                                       ParticipationBoardService boardService,
                                       Clock clock) {
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
         this.devotionRepository = devotionRepository;
         this.submissionRepository = submissionRepository;
+        this.experienceRepository = experienceRepository;
+        this.experienceProperties = experienceProperties;
         this.boardService = boardService;
         this.clock = clock;
     }
@@ -147,6 +154,12 @@ public class MemberParticipationService {
 
         DevotionSubmission saved = submissionRepository.save(
                 new DevotionSubmission(devotionId, roomId, memberId, rawContent.strip()));
+
+        // EXP is awarded here, in the same transaction, and only after every check above has passed.
+        // That is what "verified and eligible" means: waiting, exempt and blocked members never get here.
+        experienceRepository.save(new ExperienceRecord(
+                memberId, saved.getId(), experienceProperties.pointsPerSubmission()));
+
         return SubmissionResponse.from(saved);
     }
 

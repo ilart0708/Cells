@@ -16,7 +16,7 @@ const auth = useAuthStore()
       <p class="mt-1 text-sm text-on-navy-soft">{{ auth.user.email }}</p>
     </section>
 
-    <section class="rounded-[18px] border border-line bg-white p-4" aria-labelledby="next-title">
+    <section v-if="pages.length > 0" class="rounded-[18px] border border-line bg-white p-4" aria-labelledby="next-title">
       <h2 id="next-title" class="text-xs font-bold uppercase tracking-[2px] text-muted">
         Coming next
       </h2>

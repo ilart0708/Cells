@@ -112,6 +112,12 @@ const router = createRouter({
             devotionId: Number(route.params.devotionId),
           }),
         },
+        {
+          path: 'rooms/:roomId(\\d+)/board',
+          name: 'leader-board',
+          component: () => import('../views/leader/LeaderBoardView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
       ],
     },
     {
@@ -150,6 +156,28 @@ const router = createRouter({
             roomId: Number(route.params.roomId),
             devotionId: Number(route.params.devotionId),
           }),
+        },
+        {
+          path: 'experience',
+          name: 'member-experience',
+          component: () => import('../views/member/ExperienceView.vue'),
+        },
+        {
+          path: 'history',
+          name: 'member-history',
+          component: () => import('../views/member/HistoryView.vue'),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/history',
+          name: 'member-history-room',
+          component: () => import('../views/member/RoomHistoryView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/board',
+          name: 'member-board',
+          component: () => import('../views/member/BoardView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
         },
       ],
     },

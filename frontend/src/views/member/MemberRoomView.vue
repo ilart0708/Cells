@@ -91,6 +91,12 @@ watch(() => props.roomId, () => load())
        <RouterLink :to="{ name: 'member-devotions', params: { roomId: room.roomId } }" :class="btnOutline">
          Past devotions
        </RouterLink>
+        <RouterLink :to="{ name: 'member-board', params: { roomId: room.roomId } }" :class="btnOutline">
+          Growing Together
+        </RouterLink>
+        <RouterLink :to="{ name: 'member-history-room', params: { roomId: room.roomId } }" :class="btnOutline">
+          My history
+        </RouterLink>
      </div>
       </section>
 
