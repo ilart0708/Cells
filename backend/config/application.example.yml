@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: local
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+app:
+  bootstrap:
+    admin:
+      email: ${BOOTSTRAP_ADMIN_EMAIL:}
+      password: ${CHANGE_ME:}
+      full-name: ${BOOTSTRAP_ADMIN_NAME:Platform Administrator}
+  jwt:
+    secret: ${CHANGE_ME:short}
+    issuer: cells
+    access-token-ttl: 15m
+  refresh:
+    ttl: 7d
+    cookie-secure: ${REFRESH_COOKIE_SECURE:true}
+  dev-seed:
+    password: ${CHANGE_ME:}
+  invitation:
+    ttl: 7d
+    base-url: ${APP_FRONTEND_URL:http://localhost:5173}
+  clock:
+    zone: ${APP_TIMEZONE:Asia/Manila}
+  experience:
+    points-per-submission: 10
