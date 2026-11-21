@@ -13,6 +13,11 @@ server:
   port: ${PORT:8080}
   forward-headers-strategy: native
 app:
+  bootstrap:
+    admin:
+      email: ${BOOTSTRAP_ADMIN_EMAIL:}
+      password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+      full-name: ${BOOTSTRAP_ADMIN_NAME:Platform Administrator}
   jwt:
     secret: ${JWT_SECRET}
     issuer: cells
@@ -23,11 +28,10 @@ app:
   invitation:
     ttl: 7d
     base-url: ${APP_FRONTEND_URL}
-  bootstrap:
-    admin:
-      email: ${BOOTSTRAP_ADMIN_EMAIL:}
-      password: ${BOOTSTRAP_ADMIN_PASSWORD:}
-      full-name: Platform Administrator
+  clock:
+    zone: ${APP_TIMEZONE:Asia/Manila}
+  experience:
+    points-per-submission: 10
   rate-limit:
     enabled: true
     max-requests: 10
