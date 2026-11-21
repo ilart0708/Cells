@@ -2,4 +2,4 @@ target/
 node_modules/
 .env*
 .claude
-CLAUDE.md
+CLAUDE.md!backend/config/application.example.yml
