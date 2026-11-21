@@ -53,6 +53,23 @@ const router = createRouter({
           name: 'pastor-leaders',
           component: () => import('../views/pastor/MyLeadersView.vue'),
         },
+        {
+          path: 'leaders/:leaderId(\\d+)/stats',
+          name: 'pastor-leader-stats',
+          component: () => import('../views/pastor/PastorLeaderStatsView.vue'),
+          props: (route) => ({ leaderId: Number(route.params.leaderId) }),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/stats',
+          name: 'pastor-room-stats',
+          component: () => import('../views/pastor/PastorRoomStatsView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'reports',
+          name: 'pastor-reports',
+          component: () => import('../views/pastor/PastorReportsView.vue'),
+        },
       ],
     },
     {
