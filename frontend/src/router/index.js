@@ -36,6 +36,39 @@ const router = createRouter({
           name: 'admin-leaders',
           component: () => import('../views/admin/LeaderManagementView.vue'),
         },
+        {
+          path: 'rooms',
+          name: 'admin-rooms',
+          component: () => import('../views/admin/RoomMonitoringView.vue'),
+        },
+        {
+          path: 'rooms/:roomId(\\d+)/stats',
+          name: 'admin-room-stats',
+          component: () => import('../views/admin/AdminRoomStatsView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
+          path: 'analytics',
+          name: 'admin-analytics',
+          component: () => import('../views/admin/AnalyticsView.vue'),
+        },
+        {
+          path: 'leaders/:leaderId(\\d+)/stats',
+          name: 'admin-leader-stats',
+          component: () => import('../views/admin/AdminLeaderStatsView.vue'),
+          props: (route) => ({ leaderId: Number(route.params.leaderId) }),
+        },
+        {
+          path: 'members',
+          name: 'admin-members',
+          component: () => import('../views/admin/MemberManagementView.vue'),
+        },
+        {
+          path: 'members/:memberId(\\d+)',
+          name: 'admin-member',
+          component: () => import('../views/admin/MemberDetailView.vue'),
+          props: (route) => ({ memberId: Number(route.params.memberId) }),
+        },
       ],
     },
     {
