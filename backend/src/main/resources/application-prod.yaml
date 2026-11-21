@@ -10,13 +10,9 @@ spring:
   flyway:
     enabled: true
 server:
-  forward-headers-strategy: native   # was "framework"
   port: ${PORT:8080}
+  forward-headers-strategy: native
 app:
-  rate-limit:
-    enabled: true
-    max-requests: 10
-    window: 1m
   jwt:
     secret: ${JWT_SECRET}
     issuer: cells
@@ -32,6 +28,10 @@ app:
       email: ${BOOTSTRAP_ADMIN_EMAIL:}
       password: ${BOOTSTRAP_ADMIN_PASSWORD:}
       full-name: Platform Administrator
+  rate-limit:
+    enabled: true
+    max-requests: 10
+    window: 1m
 management:
   endpoints:
     web:
