@@ -53,6 +53,7 @@ public class InvitationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final InvitationProperties properties;
+    private final InvitationMailer mailer;
 
     public InvitationService(InvitationRepository invitationRepository,
                              ChurchRepository churchRepository,
@@ -65,7 +66,8 @@ public class InvitationService {
                              RoomMemberService roomMemberService,
                              PasswordEncoder passwordEncoder,
                              AuthService authService,
-                             InvitationProperties properties) {
+                             InvitationProperties properties,
+                             InvitationMailer mailer) {
         this.invitationRepository = invitationRepository;
         this.churchRepository = churchRepository;
         this.userRepository = userRepository;
@@ -78,6 +80,7 @@ public class InvitationService {
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
         this.properties = properties;
+        this.mailer = mailer;
     }
 
     // ---------- creating ----------
@@ -145,7 +148,13 @@ public class InvitationService {
                 TokenHasher.sha256(token), email, fullName.trim(),
                 role, church, room, inviterId, now.plus(properties.ttl())));
 
-        return InvitationResponse.from(invitation, now, inviteUrl(token));
+        String inviteUrl = inviteUrl(token);
+        String inviterName = userRepository.findById(inviterId).map(User::getFullName).orElse("Your church");
+        // Emailed after the invitation is committed. The copyable link in the response stays as the fallback.
+        mailer.queue(new InvitationMail(email, fullName.trim(), role, church.getName(),
+                room == null ? null : room.getName(), inviterName, inviteUrl, invitation.getExpiresAt()));
+
+        return InvitationResponse.from(invitation, now, inviteUrl);
     }
 
     // ---------- listing and revoking ----------

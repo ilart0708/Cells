@@ -1,0 +1,669 @@
+{
+  "info": {
+    "name": "CELLS API",
+    "description": "Import this file, then set the collection variable baseUrl (default http://localhost:8080/api/v1). Run Auth > Login first: it stores accessToken for every other request. Each request carries its cURL equivalent in its description. Local email: start Mailpit with `docker compose up -d` and read the inbox at http://localhost:8025.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "roomId",
+      "value": "1"
+    },
+    {
+      "key": "devotionId",
+      "value": "1"
+    },
+    {
+      "key": "memberId",
+      "value": "1"
+    },
+    {
+      "key": "pushToken",
+      "value": "example-fcm-registration-token"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Returns an access token (stored automatically) and sets the refresh cookie.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/login\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"email\": \"leader@example.com\",\n  \"password\": \"your-password\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"leader@example.com\",\n  \"password\": \"your-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.accessToken) { pm.collectionVariables.set('accessToken', body.accessToken); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "The logged-in user.\n\ncURL:\n\n```\ncurl -X GET \"{{baseUrl}}/auth/me\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clock",
+      "item": [
+        {
+          "name": "Today and next reset",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clock/today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clock",
+                "today"
+              ]
+            },
+            "description": "The platform's date, its timezone, the last day a devotion can be prepared for, and nextResetAt (the next 12:00 AM in the platform's zone, as an instant). Any logged-in role.\n\ncURL:\n\n```\ncurl -X GET \"{{baseUrl}}/clock/today\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Devices (phone push)",
+      "item": [
+        {
+          "name": "Register phone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": "The mobile app calls this after login with its Firebase (FCM) registration token. Repeating it is harmless; a token last used by another account moves to this one. Returns 204. Any logged-in role.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/devices\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"token\": \"{{pushToken}}\",\n  \"platform\": \"ANDROID\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{pushToken}}\",\n  \"platform\": \"ANDROID\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Unregister phone",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices/{{pushToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                "{{pushToken}}"
+              ]
+            },
+            "description": "Call at logout. Removes only the logged-in user's own registration of that token. Returns 204 even if nothing was there.\n\ncURL:\n\n```\ncurl -X DELETE \"{{baseUrl}}/devices/{{pushToken}}\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invitations (each one sends a registration email)",
+      "item": [
+        {
+          "name": "Admin invites a pastor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "invitations"
+              ]
+            },
+            "description": "Creates the invitation and emails the registration link. The response still contains inviteUrl as a fallback (shown once). Role: ADMIN.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/admin/invitations\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"email\": \"pastor@example.com\",\n  \"fullName\": \"Pastor Example\",\n  \"churchId\": 1\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"pastor@example.com\",\n  \"fullName\": \"Pastor Example\",\n  \"churchId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pastor invites a leader",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pastor/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pastor",
+                "invitations"
+              ]
+            },
+            "description": "Creates the invitation and emails the registration link. Role: PASTOR.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/pastor/invitations\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"email\": \"leader@example.com\",\n  \"fullName\": \"Leader Example\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"leader@example.com\",\n  \"fullName\": \"Leader Example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Leader invites a member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "invitations"
+              ]
+            },
+            "description": "Creates the invitation and emails the registration link. Role: LEADER (own room only).\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/leader/rooms/{{roomId}}/invitations\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"email\": \"member@example.com\",\n  \"fullName\": \"Member Example\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@example.com\",\n  \"fullName\": \"Member Example\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notification triggers (existing endpoints that now notify members)",
+      "item": [
+        {
+          "name": "Leader creates a devotion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/devotions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "devotions"
+              ]
+            },
+            "description": "A devotion dated today notifies the room at once (YOUR_TURN for members who can submit, DEVOTION_OPEN for those who wait). A devotion prepared for a later day is announced when that day starts (midnight job). Role: LEADER.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/leader/rooms/{{roomId}}/devotions\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"date\": \"2026-11-24\",\n  \"book\": \"JOHN\",\n  \"chapter\": 3,\n  \"verseStart\": 16,\n  \"verseEnd\": null,\n  \"title\": \"God's love\",\n  \"learningLevel\": \"BEGINNER\",\n  \"instructions\": \"Read the passage and share what you understand about God's love.\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-11-24\",\n  \"book\": \"JOHN\",\n  \"chapter\": 3,\n  \"verseStart\": 16,\n  \"verseEnd\": null,\n  \"title\": \"God's love\",\n  \"learningLevel\": \"BEGINNER\",\n  \"instructions\": \"Read the passage and share what you understand about God's love.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Member submits understanding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/member/rooms/{{roomId}}/devotions/{{devotionId}}/submissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "member",
+                "rooms",
+                "{{roomId}}",
+                "devotions",
+                "{{devotionId}}",
+                "submissions"
+              ]
+            },
+            "description": "When the submission unlocks the next member, that member gets YOUR_TURN. Role: MEMBER.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/member/rooms/{{roomId}}/devotions/{{devotionId}}/submissions\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"content\": \"God's love is unconditional.\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"God's love is unconditional.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Leader exempts a member for today",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/members/{{memberId}}/exemption",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "members",
+                "{{memberId}}",
+                "exemption"
+              ]
+            },
+            "description": "If skipping this member unlocks the next one, that member gets YOUR_TURN. Role: LEADER.\n\ncURL:\n\n```\ncurl -X PUT \"{{baseUrl}}/leader/rooms/{{roomId}}/members/{{memberId}}/exemption\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Leader removes an exemption",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/members/{{memberId}}/exemption",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "members",
+                "{{memberId}}",
+                "exemption"
+              ]
+            },
+            "description": "If the member is now the one whose turn it is, they get YOUR_TURN. Role: LEADER.\n\ncURL:\n\n```\ncurl -X DELETE \"{{baseUrl}}/leader/rooms/{{roomId}}/members/{{memberId}}/exemption\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Leader saves the group summary",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/devotions/{{devotionId}}/guidance/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "devotions",
+                "{{devotionId}}",
+                "guidance",
+                "summary"
+              ]
+            },
+            "description": "The first save notifies the room's members (SUMMARY_POSTED); later edits are quiet. Role: LEADER.\n\ncURL:\n\n```\ncurl -X PUT \"{{baseUrl}}/leader/rooms/{{roomId}}/devotions/{{devotionId}}/guidance/summary\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"content\": \"The main message is God's unconditional love.\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"The main message is God's unconditional love.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Leader saves the personal reflection",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/devotions/{{devotionId}}/guidance/reflection",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "devotions",
+                "{{devotionId}}",
+                "guidance",
+                "reflection"
+              ]
+            },
+            "description": "The first save notifies the room's members (REFLECTION_POSTED); later edits are quiet. Role: LEADER.\n\ncURL:\n\n```\ncurl -X PUT \"{{baseUrl}}/leader/rooms/{{roomId}}/devotions/{{devotionId}}/guidance/reflection\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"content\": \"John 3:16 reminds us that God's love is freely given.\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"John 3:16 reminds us that God's love is freely given.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

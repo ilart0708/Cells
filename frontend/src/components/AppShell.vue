@@ -4,6 +4,7 @@ import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { ROLE_LABEL } from '../constants/roles'
 import BaseDialog from './BaseDialog.vue'
+import CycleIndicator from './CycleIndicator.vue'
 
 const props = defineProps({
   // [{ label, to, alsoActiveOn?, more? }]. alsoActiveOn lists route names (such as a detail page) that keep this
@@ -90,6 +91,7 @@ async function logout() {
       </header>
 
       <main class="flex-1 p-4 pb-24 md:p-8">
+        <CycleIndicator class="mb-3" />
         <RouterView />
       </main>
     </div>

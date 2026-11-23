@@ -6,6 +6,7 @@ import com.cells.backend.common.DuplicateResourceException;
 import com.cells.backend.common.InvalidFieldsException;
 import com.cells.backend.common.PageResponse;
 import com.cells.backend.common.ResourceNotFoundException;
+import com.cells.backend.notification.NotificationService;
 import com.cells.backend.participation.DevotionSubmissionRepository;
 import com.cells.backend.participation.SubmissionCount;
 import com.cells.backend.room.Room;
@@ -36,15 +37,18 @@ public class DevotionService {
     private final DevotionRepository devotionRepository;
     private final DevotionSubmissionRepository submissionRepository;
     private final RoomRepository roomRepository;
+    private final NotificationService notificationService;
     private final Clock clock;
 
     public DevotionService(DevotionRepository devotionRepository,
                            DevotionSubmissionRepository submissionRepository,
                            RoomRepository roomRepository,
+                           NotificationService notificationService,
                            Clock clock) {
         this.devotionRepository = devotionRepository;
         this.submissionRepository = submissionRepository;
         this.roomRepository = roomRepository;
+        this.notificationService = notificationService;
         this.clock = clock;
     }
 
@@ -62,6 +66,8 @@ public class DevotionService {
                 roomId, request.date(), request.book(), request.chapter(),
                 request.verseStart(), normalizedEnd(request), blankToNull(request.title()),
                 request.learningLevel(), blankToNull(request.instructions()), leaderId));
+        // A devotion dated today is open at once; one prepared for a later day is announced when that day starts.
+        notificationService.devotionOpened(saved.getId());
         return DevotionResponse.from(saved, today, 0);
     }
 
@@ -118,6 +124,8 @@ public class DevotionService {
                 request.date(), request.book(), request.chapter(),
                 request.verseStart(), normalizedEnd(request), blankToNull(request.title()),
                 request.learningLevel(), blankToNull(request.instructions()), Instant.now());
+        // Moved to today: it is open now. (Does nothing for any other date, and never repeats a notification.)
+        notificationService.devotionOpened(devotion.getId());
         return DevotionResponse.from(devotion, today, 0);
     }
 
@@ -151,6 +159,7 @@ public class DevotionService {
                         "Another devotion already exists for that day. Cancel it first, then restore this one.");
             }
             devotion.restore(now);
+            notificationService.devotionOpened(devotion.getId());
         }
         return DevotionResponse.from(devotion, today, answers);
     }

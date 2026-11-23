@@ -16,6 +16,7 @@ import com.cells.backend.room.RoomStatus;
 import com.cells.backend.config.ExperienceProperties;
 import com.cells.backend.experience.ExperienceRecord;
 import com.cells.backend.experience.ExperienceRecordRepository;
+import com.cells.backend.notification.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class MemberParticipationService {
     private final ExperienceRecordRepository experienceRepository;
     private final ExperienceProperties experienceProperties;
     private final ParticipationBoardService boardService;
+    private final NotificationService notificationService;
     private final Clock clock;
 
     public MemberParticipationService(RoomRepository roomRepository,
@@ -41,6 +43,7 @@ public class MemberParticipationService {
                                       DevotionRepository devotionRepository,
                                       DevotionSubmissionRepository submissionRepository, ExperienceRecordRepository experienceRepository, ExperienceProperties experienceProperties,
                                       ParticipationBoardService boardService,
+                                      NotificationService notificationService,
                                       Clock clock) {
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
@@ -49,6 +52,7 @@ public class MemberParticipationService {
         this.experienceRepository = experienceRepository;
         this.experienceProperties = experienceProperties;
         this.boardService = boardService;
+        this.notificationService = notificationService;
         this.clock = clock;
     }
 
@@ -159,6 +163,9 @@ public class MemberParticipationService {
         // That is what "verified and eligible" means: waiting, exempt and blocked members never get here.
         experienceRepository.save(new ExperienceRecord(
                 memberId, saved.getId(), experienceProperties.pointsPerSubmission()));
+
+        // Whoever this submission just unlocked is told it is their turn (same transaction, sent after commit).
+        notificationService.turnsOpened(roomId, devotionId);
 
         return SubmissionResponse.from(saved);
     }

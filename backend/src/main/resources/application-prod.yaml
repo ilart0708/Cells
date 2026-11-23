@@ -3,6 +3,20 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_AUTH:false}
+          starttls:
+            enable: ${MAIL_STARTTLS:false}
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
@@ -28,6 +42,13 @@ app:
   invitation:
     ttl: 7d
     base-url: ${APP_FRONTEND_URL}
+  mail:
+    # Off until a real SMTP provider is configured (MAIL_HOST, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM).
+    enabled: ${MAIL_ENABLED:false}
+    from: "${MAIL_FROM:CELLS <no-reply@cells.local>}"
+  push:
+    # Phone push needs the mobile app and a Firebase sender bean. Leave off until then.
+    enabled: ${PUSH_ENABLED:false}
   clock:
     zone: ${APP_TIMEZONE:Asia/Manila}
   experience:

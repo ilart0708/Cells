@@ -20,7 +20,8 @@
 
 ## Postman
 Import `docs/postman/cells.postman_collection.json`. Set the environment variable `baseUrl` to
-`http://localhost:8080/api/v1`. The login, refresh and accept requests store `accessToken` automatically.
+`http://localhost:8080/api/v1` (the collection variable of the same name is already set). The Login request stores
+`accessToken` automatically. Every request carries its cURL in its description.
 
 ## Optional setting
 | Variable | Purpose |
@@ -48,7 +49,8 @@ Import `docs/postman/cells.postman_collection.json`. Set the environment variabl
 
 ## Postman
 Import `docs/postman/cells.postman_collection.json`. Set the environment variable `baseUrl` to
-`http://localhost:8080/api/v1`. The login, refresh and accept requests store `accessToken` automatically.
+`http://localhost:8080/api/v1` (the collection variable of the same name is already set). The Login request stores
+`accessToken` automatically. Every request carries its cURL in its description.
 
 ## Optional setting
 | Variable | Purpose |
@@ -76,3 +78,36 @@ Import `docs/postman/cells.postman_collection.json`. Set the environment variabl
   after sharing their own, while exempt, or once the day is over; until then the server sends no text,
   only a count. Members never get emails or ids. Pastors and administrators never read the text.
 - The member and leader screens refresh every 30 seconds while the tab is visible.
+
+## Daily cycle and notifications (Phase 9)
+- **Midnight cycle.** At 12:00 AM in `APP_TIMEZONE` (default `Asia/Manila`) a scheduled job opens the new day and
+  announces devotions that leaders prepared in advance. It also runs once at startup, so a restart or deploy
+  at midnight cannot skip a day. It never changes history: submissions, exemptions and EXP are keyed by date.
+  `GET /api/v1/clock/today` now also returns `nextResetAt`; the app shows a countdown.
+- **Who is notified (email and phone push):**
+  | Event | Who |
+  | --- | --- |
+  | Invitation created (pastor, leader or member) | The invitee, by email only (registration link) |
+  | Devotion opens (created today, moved to today, or its day starts) | Members: "your turn" if they can submit now, otherwise "devotion open" |
+  | A member submits or the leader changes an exemption | The member(s) whose turn it now is |
+  | Leader saves the group summary or personal reflection (first save only) | The room's members |
+  Messages never contain anyone's answer or the leader's text; they link into the app.
+- **Reliability.** Notifications are saved with the action that caused them and sent after it commits, so a mail
+  problem never undoes a submission. Failures are retried every 2 minutes, up to 5 attempts. Each event is stored once.
+- **Local email with Mailpit.** `docker compose up -d` starts Mailpit. The backend's defaults already point to it
+  (`localhost:1025`). Read every sent email at http://localhost:8025. Nothing reaches a real inbox.
+- **Phone push** is off (`PUSH_ENABLED=false`) until the mobile app exists. The app registers its Firebase token with
+  `POST /api/v1/devices` after login and removes it with `DELETE /api/v1/devices/{token}` at logout.
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `MAIL_ENABLED` | Send emails at all | `true` locally, `false` in prod until SMTP is set |
+| `MAIL_HOST`, `MAIL_PORT` | SMTP server | `localhost`, `1025` (Mailpit) |
+| `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP login (never commit them) | empty |
+| `MAIL_AUTH`, `MAIL_STARTTLS` | Set both to `true` for a real provider (usually port 587) | `false` |
+| `MAIL_FROM` | From header, for example `CELLS <no-reply@yourdomain>` | `CELLS <no-reply@cells.local>` |
+| `PUSH_ENABLED` | Turn on phone push once a Firebase sender is installed | `false` |
+
+**Going live with a real SMTP provider.** Buy a domain, add the provider's SPF, DKIM and DMARC DNS records, create SMTP
+credentials, then set the `MAIL_*` variables and `APP_FRONTEND_URL`. A `netlify.app` address cannot be authenticated, so it
+cannot be the sender domain.
