@@ -7,6 +7,7 @@ import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 import { configureHttp } from './api/http'
+import { setNotificationOpenHandler } from './services/push'
 
 async function bootstrap() {
   const app = createApp(App)
@@ -22,6 +23,9 @@ async function bootstrap() {
       router.push({ name: 'login' })
     },
   })
+
+  // Tapping a push notification opens the page it is about (the router sends logged-out people to login first).
+  setNotificationOpenHandler((path) => router.push(path))
 
   // Restore the session BEFORE the router starts, so the first navigation already knows
   // whether the user is logged in.

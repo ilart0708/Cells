@@ -1,13 +1,11 @@
 package com.cells.backend.invitation;
 
-import com.cells.backend.auth.AuthResult;
-import com.cells.backend.auth.LoginResponse;
-import com.cells.backend.auth.RefreshCookieFactory;
+import com.cells.backend.auth.SessionResponseFactory;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class InvitationController {
 
     private final InvitationService invitationService;
-    private final RefreshCookieFactory cookieFactory;
+    private final SessionResponseFactory sessions;
 
-    public InvitationController(InvitationService invitationService, RefreshCookieFactory cookieFactory) {
+    public InvitationController(InvitationService invitationService, SessionResponseFactory sessions) {
         this.invitationService = invitationService;
-        this.cookieFactory = cookieFactory;
+        this.sessions = sessions;
     }
 
     @PostMapping("/preview")
@@ -30,11 +28,9 @@ public class InvitationController {
     }
 
     @PostMapping("/accept")
-    public ResponseEntity<LoginResponse> accept(@Valid @RequestBody AcceptInvitationRequest request) {
-        AuthResult result = invitationService.accept(request);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookieFactory.create(result.refreshToken()).toString())
-                .header(HttpHeaders.CACHE_CONTROL, "no-store")
-                .body(result.body());
+    public ResponseEntity<?> accept(
+            @RequestHeader(name = SessionResponseFactory.CLIENT_HEADER, required = false) String clientType,
+            @Valid @RequestBody AcceptInvitationRequest request) {
+        return sessions.create(invitationService.accept(request), clientType);
     }
 }

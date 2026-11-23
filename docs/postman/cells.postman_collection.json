@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "CELLS API",
-    "description": "Import this file, then set the collection variable baseUrl (default http://localhost:8080/api/v1). Run Auth > Login first: it stores accessToken for every other request. Each request carries its cURL equivalent in its description. Local email: start Mailpit with `docker compose up -d` and read the inbox at http://localhost:8025.",
+    "description": "Import this file, then set the collection variable baseUrl (default http://localhost:8080/api/v1). Run Auth > Login first: it stores accessToken for every other request. Each request carries its cURL equivalent in its description. Local email: start Mailpit with `docker compose up -d` and read the inbox at http://localhost:8025. The 'native app' requests in Auth show how the Android/iOS app logs in (header X-Client-Type: native, refresh token in the body).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -28,6 +28,10 @@
     {
       "key": "pushToken",
       "value": "example-fcm-registration-token"
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
     }
   ],
   "item": [
@@ -117,6 +121,217 @@
               ]
             }
           }
+        },
+        {
+          "name": "Login (native app)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Type",
+                "value": "native"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Same as Login, but with the header X-Client-Type: native. The refresh token comes back in the response body (field refreshToken) instead of a cookie, and no cookie is set. The Android/iOS app sends this header on every request.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/login\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"email\": \"leader@example.com\",\n  \"password\": \"your-password\"\n}'\n```",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"leader@example.com\",\n  \"password\": \"your-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b && b.accessToken) { pm.collectionVariables.set('accessToken', b.accessToken); }",
+                  "if (b && b.refreshToken) { pm.collectionVariables.set('refreshToken', b.refreshToken); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh (native app)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Type",
+                "value": "native"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Native mode: send the saved refresh token in the body. Each call returns a NEW refresh token (stored automatically); the old one stops working, and reusing it logs the account out everywhere.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/refresh\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"refreshToken\": \"{{refreshToken}}\"\n}'\n```",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b && b.accessToken) { pm.collectionVariables.set('accessToken', b.accessToken); }",
+                  "if (b && b.refreshToken) { pm.collectionVariables.set('refreshToken', b.refreshToken); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout (native app)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Type",
+                "value": "native"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Native mode: revokes the refresh token sent in the body. Returns 204.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/logout\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"refreshToken\": \"{{refreshToken}}\"\n}'\n```",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Accept invitation (native app)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Type",
+                "value": "native"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/invitations/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invitations",
+                "accept"
+              ]
+            },
+            "description": "Native mode: creates the account and returns the session with refreshToken in the body.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/invitations/accept\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\"\n}'\n```",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b && b.accessToken) { pm.collectionVariables.set('accessToken', b.accessToken); }",
+                  "if (b && b.refreshToken) { pm.collectionVariables.set('refreshToken', b.refreshToken); }"
+                ]
+              }
+            }
+          ]
         }
       ]
     },

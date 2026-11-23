@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:native": "vite build --mode native",
+    "cap:sync": "npm run build:native && cap sync android",
+    "cap:open": "cap open android",
     "preview": "vite preview",
     "test:unit": "vitest",
     "lint": "run-s \"lint:*\"",
