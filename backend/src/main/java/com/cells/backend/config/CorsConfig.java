@@ -22,6 +22,8 @@ public class CorsConfig {
         cors.setAllowedOrigins(properties.allowedOriginsOrEmpty());
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Client-Type"));
+        // Lets the app show "wait N seconds" after too many login attempts.
+        cors.setExposedHeaders(List.of("Retry-After"));
         cors.setAllowCredentials(false);
         cors.setMaxAge(3600L);
 

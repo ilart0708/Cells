@@ -28,25 +28,28 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @RequestHeader(name = SessionResponseFactory.CLIENT_HEADER, required = false) String clientType,
+            @RequestHeader(name = SessionResponseFactory.ORIGIN_HEADER, required = false) String origin,
             @Valid @RequestBody LoginRequest request) {
-        return sessions.create(authService.login(request), clientType);
+        return sessions.create(authService.login(request), clientType, origin);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(
             @RequestHeader(name = SessionResponseFactory.CLIENT_HEADER, required = false) String clientType,
+            @RequestHeader(name = SessionResponseFactory.ORIGIN_HEADER, required = false) String origin,
             @CookieValue(name = RefreshCookieFactory.NAME, required = false) String refreshCookie,
             @Valid @RequestBody(required = false) RefreshRequest body) {
-        String token = SessionResponseFactory.refreshTokenFrom(clientType, refreshCookie, body);
-        return sessions.create(authService.refresh(token), clientType);
+        String token = sessions.refreshTokenFrom(clientType, origin, refreshCookie, body);
+        return sessions.create(authService.refresh(token), clientType, origin);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
             @RequestHeader(name = SessionResponseFactory.CLIENT_HEADER, required = false) String clientType,
+            @RequestHeader(name = SessionResponseFactory.ORIGIN_HEADER, required = false) String origin,
             @CookieValue(name = RefreshCookieFactory.NAME, required = false) String refreshCookie,
             @Valid @RequestBody(required = false) RefreshRequest body) {
-        authService.logout(SessionResponseFactory.refreshTokenFrom(clientType, refreshCookie, body));
+        authService.logout(sessions.refreshTokenFrom(clientType, origin, refreshCookie, body));
         return sessions.loggedOut();
     }
 

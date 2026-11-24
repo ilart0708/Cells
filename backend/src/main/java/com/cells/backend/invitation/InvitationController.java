@@ -30,7 +30,8 @@ public class InvitationController {
     @PostMapping("/accept")
     public ResponseEntity<?> accept(
             @RequestHeader(name = SessionResponseFactory.CLIENT_HEADER, required = false) String clientType,
+            @RequestHeader(name = SessionResponseFactory.ORIGIN_HEADER, required = false) String origin,
             @Valid @RequestBody AcceptInvitationRequest request) {
-        return sessions.create(invitationService.accept(request), clientType);
+        return sessions.create(invitationService.accept(request), clientType, origin);
     }
 }
