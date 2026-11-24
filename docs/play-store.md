@@ -74,13 +74,12 @@ the questionnaire returns.
 - **Target age:** 18 and over (matches the privacy policy). Not designed for children, so no Families policy.
 - **Ads:** none. **Contains in-app purchases:** no. **News app / government / health app / financial features:** no.
 
-## User-generated content: decision needed
-Members write answers that other members of the same group can read. Google's User Generated Content policy expects
-apps with UGC to have a way to **report or block** abusive content and to moderate it. CELLS has neither today. Content is
-limited to small invitation-only groups run by a leader, but a reviewer may still ask. Options:
-1. Describe the closed-group model in the review notes and add a simple "Report" action later if asked.
-2. Add a report button (leader and administrator can see reports) before the production release.
-Tell me which and I will build option 2 if you want it.
+## User-generated content (report and removal)
+Members' written answers are visible to the rest of their group, so Google's user-generated-content policy applies.
+CELLS has an in-app way to report an answer (Report button on every other member's answer, with a reason) and the room's
+leader can keep it or remove its text from Room > Reports. The reporter is never shown. Use this in the review notes and
+in the Play Console UGC question. Limits to be honest about: reports go to the room's leader (not to an administrator),
+and there is no per-user block.
 
 ## Release checklist
 1. Create app in Play Console (name, default language, free).

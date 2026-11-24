@@ -168,6 +168,12 @@ const router = createRouter({
           }),
         },
         {
+          path: 'rooms/:roomId(\\d+)/reports',
+          name: 'leader-reports',
+          component: () => import('../views/leader/LeaderReportsView.vue'),
+          props: (route) => ({ roomId: Number(route.params.roomId) }),
+        },
+        {
           path: 'account',
           name: 'leader-account',
           component: () => import('../views/AccountView.vue'),

@@ -14,6 +14,7 @@ const navItems = [
       'leader-devotion-edit',
       'leader-answers',
       'leader-board',
+      'leader-reports',
     ],
   },
   { label: 'Account', to: { name: 'leader-account' }, more: true },

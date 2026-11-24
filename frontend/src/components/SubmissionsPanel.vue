@@ -4,6 +4,7 @@ import { getRoomAnswers } from '../api/participation'
 import { formatDateTime } from '../utils/format'
 import { btnOutline } from './buttonClasses'
 import ParticipationBadge from './ParticipationBadge.vue'
+import ReportAnswerDialog from './ReportAnswerDialog.vue'
 
 const props = defineProps({
   roomId: { type: Number, required: true },
@@ -13,6 +14,21 @@ const props = defineProps({
   // Leave out my own answer (the page already shows it elsewhere).
   hideOwn: { type: Boolean, default: false },
 })
+
+const reportOpen = ref(false)
+const reportTarget = ref(null)
+const reported = ref(new Set()) // answers I reported in this visit
+const reportNotice = ref('')
+
+function startReport(answer) {
+  reportTarget.value = answer.id
+  reportOpen.value = true
+}
+
+function onReported(id) {
+  reported.value = new Set([...reported.value, id])
+  reportNotice.value = 'Thank you. Your leader will review it.'
+}
 
 const state = ref('loading') // loading | ready | error
 const data = ref(null)
@@ -80,7 +96,7 @@ watch(() => props.refreshKey, () => load({ quiet: true }))
     <ul v-else class="space-y-3">
       <li
         v-for="answer in visible"
-        :key="`${answer.submittedAt}-${answer.fullName}`"
+        :key="answer.id"
         :class="['space-y-2 rounded-[18px] border p-4', answer.you ? 'border-gold-line bg-gold-50' : 'border-line bg-white']"
       >
         <div class="flex flex-wrap items-center gap-3">
@@ -92,8 +108,25 @@ watch(() => props.refreshKey, () => load({ quiet: true }))
           </span>
         </div>
         <p class="text-sm text-muted">{{ formatDateTime(answer.submittedAt) }}</p>
-        <p class="whitespace-pre-line break-words text-sm text-navy-900">{{ answer.content }}</p>
+        <p :class="['whitespace-pre-line break-words text-sm', answer.removed ? 'italic text-muted' : 'text-navy-900']">
+          {{ answer.content }}
+        </p>
+        <div v-if="!answer.you && !answer.removed" class="flex justify-end">
+          <span v-if="reported.has(answer.id)" class="text-sm font-semibold text-muted">Reported</span>
+          <button
+            v-else
+            type="button"
+            class="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold text-muted underline underline-offset-4 hover:text-navy-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+            @click="startReport(answer)"
+          >
+            Report<span class="sr-only"> {{ answer.fullName }}’s answer</span>
+          </button>
+        </div>
       </li>
     </ul>
+    <p v-if="reportNotice" role="status" class="rounded-xl bg-gold-50 px-4 py-3 text-sm font-semibold text-navy-900">
+      {{ reportNotice }}
+    </p>
+    <ReportAnswerDialog v-model:open="reportOpen" :room-id="roomId" :submission-id="reportTarget" @reported="onReported" />
   </section>
 </template>
