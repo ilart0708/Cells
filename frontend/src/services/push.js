@@ -4,6 +4,11 @@ import { secureGet, secureRemove, secureSet } from './secureStore'
 
 // Phone push for the Android/iOS app. Everything here is a no-op on the website.
 // The plugin is imported on demand, so the website's bundle never contains it.
+// A Capacitor plugin is a proxy object: never return it from an async function or put it in a Promise
+// (JavaScript would ask it for ".then" and the call would hang). Import it where it is used.
+
+// The backend's Firebase sender must use this same id as the channel of every message it sends.
+export const NOTIFICATION_CHANNEL_ID = 'cells-default'
 
 const TOKEN_KEY = 'cells_push_token'
 const PLATFORM = { android: 'ANDROID', ios: 'IOS' }
@@ -16,11 +21,6 @@ let openHandler = () => {}
 /** Called when the person taps a notification; receives an in-app path such as /member/rooms/1/devotion. */
 export function setNotificationOpenHandler(handler) {
   openHandler = handler
-}
-
-async function pushPlugin() {
-  const { PushNotifications } = await import('@capacitor/push-notifications')
-  return PushNotifications
 }
 
 async function ensureListeners(PushNotifications) {
@@ -54,7 +54,7 @@ export async function enablePush() {
   if (!isNative) return
   active = true
   try {
-    const PushNotifications = await pushPlugin()
+    const { PushNotifications } = await import('@capacitor/push-notifications')
     await ensureListeners(PushNotifications)
 
     let permission = await PushNotifications.checkPermissions()
@@ -62,6 +62,23 @@ export async function enablePush() {
       permission = await PushNotifications.requestPermissions()
     }
     if (permission.receive !== 'granted') return
+
+    if (platformName === 'android') {
+      // Android 8+ shows every notification through a channel. Without our own, messages land in a generic
+      // low-priority one and often arrive without a sound or banner.
+      try {
+        await PushNotifications.createChannel({
+          id: NOTIFICATION_CHANNEL_ID,
+          name: 'CELLS notifications',
+          description: 'New devotions, your turn, and notes from your leader',
+          importance: 4,
+          visibility: 1,
+          vibration: true,
+        })
+      } catch (error) {
+        console.warn('Could not create the notification channel.', error?.message ?? error)
+      }
+    }
 
     await PushNotifications.register()
   } catch (error) {
