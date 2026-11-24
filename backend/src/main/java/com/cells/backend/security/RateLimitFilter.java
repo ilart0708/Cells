@@ -1,11 +1,16 @@
 package com.cells.backend.security;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Clock;
+import java.util.Base64;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.cells.backend.config.RateLimitProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Qualifier;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -41,6 +49,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final CorsConfigurationSource corsSource;
     private final CorsProcessor corsProcessor = new DefaultCorsProcessor();
     private final Clock clock = Clock.systemUTC();
+    private final ObjectMapper json = new ObjectMapper();
     private final ConcurrentHashMap<String, Window> windows = new ConcurrentHashMap<>();
 
     public RateLimitFilter(RateLimitProperties props,
@@ -102,6 +111,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private String clientIp(HttpServletRequest request) {
+        String netlifyIp = verifiedNetlifyClientIp(request);
+        if (netlifyIp != null) {
+            return netlifyIp;
+        }
         String headerName = props.clientIpHeader();
         if (headerName != null && !headerName.isBlank()) {
             String value = request.getHeader(headerName);
@@ -110,6 +123,49 @@ public class RateLimitFilter extends OncePerRequestFilter {
             }
         }
         return request.getRemoteAddr();
+    }
+
+    /**
+     * Website path: Netlify proxies /api/* to this backend and, for a "signed" redirect, adds an x-nf-sign header (a JWS,
+     * HMAC HS256, claims iss=netlify and exp). Only when that signature verifies with our shared secret is the visitor
+     * address in X-Nf-Client-Connection-Ip trusted; anyone else could write that header themselves. Returns null when
+     * the secret is not configured or anything about the signature is wrong, so callers fall back to the normal address.
+     */
+    private String verifiedNetlifyClientIp(HttpServletRequest request) {
+        String secret = props.netlifySignSecret();
+        String token = request.getHeader("x-nf-sign");
+        if (secret == null || secret.isBlank() || token == null || token.isBlank()) {
+            return null;
+        }
+        try {
+            String[] parts = token.trim().split("\\.");
+            if (parts.length != 3) {
+                return null;
+            }
+            Base64.Decoder decoder = Base64.getUrlDecoder();
+            JsonNode header = json.readTree(decoder.decode(parts[0]));
+            if (!"HS256".equals(header.path("alg").asText())) {
+                return null; // never accept "none" or another algorithm
+            }
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] expected = mac.doFinal((parts[0] + "." + parts[1]).getBytes(StandardCharsets.US_ASCII));
+            if (!MessageDigest.isEqual(expected, decoder.decode(parts[2]))) {
+                return null;
+            }
+            JsonNode claims = json.readTree(decoder.decode(parts[1]));
+            if (!"netlify".equals(claims.path("iss").asText())) {
+                return null;
+            }
+            long exp = claims.path("exp").asLong(0);
+            if (exp == 0 || exp * 1000 < clock.millis()) {
+                return null;
+            }
+            String ip = request.getHeader("X-Nf-Client-Connection-Ip");
+            return (ip == null || ip.isBlank()) ? null : ip.trim();
+        } catch (Exception e) {
+            return null; // malformed token: treat as unsigned
+        }
     }
 
     /** For tests. */
