@@ -5,9 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.List;
 
 /**
- * Browser origins allowed to call the API directly (cross-origin). The website does not need this: Netlify
- * forwards /api to the backend, so the browser sees one origin. The Android/iOS app does: its pages are served
- * from https://localhost (Android) or capacitor://localhost (iOS).
+ * The origins of the Android/iOS app: its pages are served from https://localhost (Android) or capacitor://localhost
+ * (iOS). They may call the API directly and are the only origins that may use native sign-in mode. The website's own
+ * origin is added to the CORS list separately (CorsConfig) from APP_FRONTEND_URL, and is deliberately not listed here.
  */
 @ConfigurationProperties(prefix = "app.cors")
 public record CorsProperties(List<String> allowedOrigins) {
