@@ -4,6 +4,8 @@
 import { CONTACT_EMAIL, OPERATOR_NAME } from '../constants/contact'
 
 const APP_NAME = 'CELLS'
+const OPERATOR_NAME = 'Jesus Holiness Alliance Church (JHAC)'
+const CONTACT_EMAIL = 'thuury007@gmail.com'
 const LAST_UPDATED = '24 November 2026'
 
 const sections = [
