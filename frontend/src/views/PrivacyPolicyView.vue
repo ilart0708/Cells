@@ -2,8 +2,8 @@
 // Public page: no login needed. Edit the three constants below, then redeploy.
 // The same address goes into the Play Console "Privacy policy" field: https://<your site>/privacy
 const APP_NAME = 'CELLS'
-const OPERATOR_NAME = 'REPLACE WITH YOUR NAME OR CHURCH NAME'
-const CONTACT_EMAIL = 'REPLACE-WITH-YOUR-EMAIL@example.com'
+const OPERATOR_NAME = 'Jesus Holiness Alliance Church'
+const CONTACT_EMAIL = 'thuury007@gmail.com'
 const LAST_UPDATED = '24 November 2026'
 
 const sections = [
