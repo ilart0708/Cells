@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final Clock clock = Clock.systemUTC();
     private final ConcurrentHashMap<String, Window> windows = new ConcurrentHashMap<>();
 
-    public RateLimitFilter(RateLimitProperties props, CorsConfigurationSource corsSource) {
+    public RateLimitFilter(RateLimitProperties props,
+                           @Qualifier("corsConfigurationSource") CorsConfigurationSource corsSource) {
         this.props = props;
         this.corsSource = corsSource;
     }
