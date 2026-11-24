@@ -237,6 +237,11 @@ Check each point in the Play Console, because Google changes these rules.
   effectively unlimited until the backend verifies Netlify's signed proxy header (`x-nf-sign`) and only then trusts
   `X-Nf-Client-Connection-Ip`. Do not set `X-Nf-Client-Connection-Ip` as the header on its own: on the direct path anyone can write it.
 
+  **Website path fix (signed proxy):** `frontend/netlify.toml` marks the `/api/*` rule `signed = "CELLS_PROXY_SIGN_SECRET"`, so Netlify adds an
+  `x-nf-sign` header (JWS, HMAC HS256, claims `iss=netlify` and `exp`). Set the same long random value in Netlify (variable
+  `CELLS_PROXY_SIGN_SECRET`, scope including Runtime) and in Render (`APP_RATE_LIMIT_NETLIFY_SIGN_SECRET`). The backend then trusts
+  `X-Nf-Client-Connection-Ip` only when the signature verifies; otherwise it behaves as before. Set the Netlify variable **before** deploying the change.
+
   **If there is no 429 at all** (checked on 24 Nov 2026: 12 wrong logins in a row all returned 401, through Netlify and directly to
   Render), the limiter is not seeing one stable address per visitor. First check that Render's Environment has no
   `APP_RATE_LIMIT_ENABLED=false`. Then find out which header carries the real address:

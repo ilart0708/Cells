@@ -10,6 +10,9 @@
   to = "https://cells-d3m6.onrender.com/api/:splat"
   status = 200
   force = true
+  # Netlify signs each proxied request (x-nf-sign) with the value of this site variable, so the backend can trust the
+  # visitor address Netlify supplies. The variable must exist in Netlify (scope includes Runtime) before this is deployed.
+  signed = "CELLS_PROXY_SIGN_SECRET"
 
 [[redirects]]
   from = "/*"
