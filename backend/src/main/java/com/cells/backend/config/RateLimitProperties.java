@@ -10,5 +10,7 @@ public record RateLimitProperties(
         @DefaultValue("false") boolean enabled,
         @DefaultValue("10") int maxRequests,
         @DefaultValue("1m") Duration window,
-        String clientIpHeader) {
+        String clientIpHeader,
+        /** Temporary: logs the headers that may carry the visitor's address, to find out which one the host provides. */
+        @DefaultValue("false") boolean debug) {
 }

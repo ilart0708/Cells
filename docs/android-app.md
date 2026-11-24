@@ -225,6 +225,19 @@ Check each point in the Play Console, because Google changes these rules.
   If the second network gets 429 on a path, set `APP_RATE_LIMIT_CLIENT_IP_HEADER` on Render to the header that host documents for the
   real client address, and repeat. Send the result to your Claude session to pick the header.
 
+  **If there is no 429 at all** (checked on 24 Nov 2026: 12 wrong logins in a row all returned 401, through Netlify and directly to
+  Render), the limiter is not seeing one stable address per visitor. First check that Render's Environment has no
+  `APP_RATE_LIMIT_ENABLED=false`. Then find out which header carries the real address:
+
+  1. In Render set `APP_RATE_LIMIT_DEBUG=true` and let it redeploy.
+  2. Send 3 wrong logins through the website (`$url` = the Netlify address) and 3 directly (`$url` = the Render address).
+  3. In the Render log, find the lines starting `Rate-limit debug:`. Each shows `remoteAddr` and the candidate headers
+     (`x-forwarded-for`, `cf-connecting-ip`, `true-client-ip`, `x-nf-client-connection-ip`, `x-real-ip`).
+  4. Pick the header that holds your own address (it must be the same on all 3 requests of a path), set it as
+     `APP_RATE_LIMIT_CLIENT_IP_HEADER`, then **remove `APP_RATE_LIMIT_DEBUG`**: the log contains visitors' addresses.
+  Never use a header a visitor can write themselves (such as the first entry of `x-forwarded-for`): a guesser could change it on
+  every attempt and the limit would mean nothing.
+
 ### Android project (edit these files after `npx cap add android`)
 1. Done: `android/app/src/main/AndroidManifest.xml` has `android:allowBackup="false"` in the `<application ...>` tag.
    Android would otherwise copy the app's stored data to Google Drive backups, and a restored copy cannot decrypt
