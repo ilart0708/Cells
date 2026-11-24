@@ -117,4 +117,5 @@ The same Vue app is packaged with Capacitor as `com.cells.app`. Setup, Firebase,
 steps are in [docs/android-app.md](docs/android-app.md). Backend side: CORS for the app's origin
 (`CORS_ALLOWED_ORIGINS`, defaults already include `https://localhost` and `capacitor://localhost`) and a native
 sign-in mode: with the header `X-Client-Type: native` the refresh token is returned and accepted in the request body
-instead of the cookie. The website is unchanged.
+instead of the cookie. That mode is honored only for the app's own origins (or requests with no Origin, such as Postman),
+so a script on the website cannot ask for the refresh token. The website is unchanged.

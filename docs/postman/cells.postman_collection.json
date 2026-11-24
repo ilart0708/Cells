@@ -150,7 +150,7 @@
                 "login"
               ]
             },
-            "description": "Same as Login, but with the header X-Client-Type: native. The refresh token comes back in the response body (field refreshToken) instead of a cookie, and no cookie is set. The Android/iOS app sends this header on every request.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/login\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"email\": \"leader@example.com\",\n  \"password\": \"your-password\"\n}'\n```",
+            "description": "Same as Login, but with the header X-Client-Type: native. The refresh token comes back in the response body (field refreshToken) instead of a cookie, and no cookie is set. The Android/iOS app sends this header on every request. The server honors it only when the request has no Origin header (Postman, curl) or an Origin listed in app.cors.allowed-origins (the app: https://localhost). A page of the website sending it still gets the cookie.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/login\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"email\": \"leader@example.com\",\n  \"password\": \"your-password\"\n}'\n```",
             "auth": {
               "type": "noauth"
             },
