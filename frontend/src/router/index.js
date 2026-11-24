@@ -232,6 +232,12 @@ const router = createRouter({
       ],
     },
     {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('../views/PrivacyPolicyView.vue'),
+      meta: { public: true },
+    },
+    {
       path: '/accept-invitation',
       name: 'accept-invitation',
       component: () => import('../views/AcceptInvitationView.vue'),
