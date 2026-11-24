@@ -185,3 +185,9 @@ A white screen means the page loaded but the Vue app did not start. Since the st
    minute to wake), then shows the login page and finishes in the background.
 6. **Cleared by a fresh start.** Uninstall the app from the phone and run it again from Android Studio, to rule out
    leftovers from an earlier install.
+
+## Push switch (VITE_PUSH_ENABLED)
+
+Phone push is off by default. The app only asks for notification permission and registers with Firebase when `VITE_PUSH_ENABLED=true` was set at build time. Turning it on without `google-services.json` in `frontend/android/app/` crashes the app right after login.
+
+To turn it on for your own builds, put `VITE_PUSH_ENABLED=true` in `frontend/.env.native.local` (ignored by Git). `google-services.json` is also ignored by Git. On a new machine, download it again from the Firebase console (Project settings, Your apps), then run `npm run cap:sync`.
