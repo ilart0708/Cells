@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 
 @RestController
@@ -23,6 +24,7 @@ public class ClockController {
     @GetMapping("/today")
     public ClockResponse today() {
         LocalDate today = LocalDate.now(clock);
-        return new ClockResponse(today, clock.getZone().getId(), today.plusDays(DevotionService.MAX_DAYS_AHEAD));
+        Instant nextResetAt = today.plusDays(1).atStartOfDay(clock.getZone()).toInstant();
+        return new ClockResponse(today, clock.getZone().getId(), today.plusDays(DevotionService.MAX_DAYS_AHEAD), nextResetAt);
     }
 }

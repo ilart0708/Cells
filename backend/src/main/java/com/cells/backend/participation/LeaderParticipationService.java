@@ -7,6 +7,7 @@ import com.cells.backend.devotion.DevotionRepository;
 import com.cells.backend.devotion.DevotionResponse;
 import com.cells.backend.devotion.DevotionStatus;
 import com.cells.backend.participation.ParticipationRules.Result;
+import com.cells.backend.notification.NotificationService;
 import com.cells.backend.room.Room;
 import com.cells.backend.room.RoomMemberRepository;
 import com.cells.backend.room.RoomMemberResponse;
@@ -39,6 +40,7 @@ public class LeaderParticipationService {
     private final DailyExemptionRepository exemptionRepository;
     private final ParticipationBoardService boardService;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
     private final Clock clock;
 
     public LeaderParticipationService(RoomRepository roomRepository,
@@ -48,6 +50,7 @@ public class LeaderParticipationService {
                                       DailyExemptionRepository exemptionRepository,
                                       ParticipationBoardService boardService,
                                       UserRepository userRepository,
+                                      NotificationService notificationService,
                                       Clock clock) {
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
@@ -56,6 +59,7 @@ public class LeaderParticipationService {
         this.exemptionRepository = exemptionRepository;
         this.boardService = boardService;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
         this.clock = clock;
     }
 
@@ -132,8 +136,10 @@ public class LeaderParticipationService {
                     name + " has already submitted today\u2019s devotion, so they can\u2019t be exempted.");
         }
 
-        return ExemptionResponse.from(
-                exemptionRepository.save(new DailyExemption(roomId, memberId, today, leaderId)));
+        DailyExemption saved = exemptionRepository.save(new DailyExemption(roomId, memberId, today, leaderId));
+        // Skipping this member may have unlocked the next one.
+        notificationService.turnsOpenedToday(roomId);
+        return ExemptionResponse.from(saved);
     }
 
     /** Removes today's exemption. Removing one that does not exist is harmless. The row stays, as history. */
@@ -146,6 +152,8 @@ public class LeaderParticipationService {
         exemptionRepository
                 .findByRoomIdAndMemberIdAndExemptionDateAndRevokedAtIsNull(roomId, memberId, today)
                 .ifPresent(exemption -> exemption.revoke(leaderId, Instant.now()));
+        // The member is back in the order, so they may now be the one whose turn it is.
+        notificationService.turnsOpenedToday(roomId);
     }
 
     // ---------- lookups ----------

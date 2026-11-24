@@ -1,3 +1,5 @@
+import { API_BASE, isNative } from '../platform'
+
 export class ApiError extends Error {
   constructor(status, problem) {
     super(problem?.detail || 'Request failed.')
@@ -35,13 +37,16 @@ export async function rawRequest(path, { method = 'GET', body, token } = {}) {
   const headers = { Accept: 'application/json' }
   if (body !== undefined) headers['Content-Type'] = 'application/json'
   if (token) headers.Authorization = `Bearer ${token}`
+  // Tells the backend to return the refresh token in the body (the app cannot use the website's cookie).
+  if (isNative) headers['X-Client-Type'] = 'native'
 
-  const init = { method, headers, credentials: 'same-origin' }
-    if (body !== undefined) init.body = JSON.stringify(body)
+  // The app talks to the backend cross-origin and never sends cookies; the website stays same-origin with its cookie.
+  const init = { method, headers, credentials: isNative ? 'omit' : 'same-origin' }
+  if (body !== undefined) init.body = JSON.stringify(body)
 
   let response
   try {
-    response = await fetch(`/api/v1${path}`, init)
+    response = await fetch(`${API_BASE}/api/v1${path}`, init)
   } catch {
     throw new ApiError(0, { detail: 'Cannot reach the server. Please check your connection.' })
   }

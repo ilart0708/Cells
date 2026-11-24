@@ -3,6 +3,8 @@ package com.cells.backend.summary;
 import com.cells.backend.common.BusinessRuleException;
 import com.cells.backend.common.ResourceNotFoundException;
 import com.cells.backend.devotion.DevotionRepository;
+import com.cells.backend.notification.NotificationService;
+import com.cells.backend.notification.NotificationType;
 import com.cells.backend.participation.DevotionSubmissionRepository;
 import com.cells.backend.room.Room;
 import com.cells.backend.room.RoomRepository;
@@ -26,15 +28,18 @@ public class LeaderGuidanceService {
     private final DevotionRepository devotionRepository;
     private final DevotionSubmissionRepository submissionRepository;
     private final DevotionSummaryRepository summaryRepository;
+    private final NotificationService notificationService;
 
     public LeaderGuidanceService(RoomRepository roomRepository,
                                  DevotionRepository devotionRepository,
                                  DevotionSubmissionRepository submissionRepository,
-                                 DevotionSummaryRepository summaryRepository) {
+                                 DevotionSummaryRepository summaryRepository,
+                                 NotificationService notificationService) {
         this.roomRepository = roomRepository;
         this.devotionRepository = devotionRepository;
         this.submissionRepository = submissionRepository;
         this.summaryRepository = summaryRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional(readOnly = true)
@@ -72,6 +77,9 @@ public class LeaderGuidanceService {
         DevotionSummary note = summaryRepository.findByDevotionIdAndType(devotionId, type).orElse(null);
         if (note == null) {
             note = summaryRepository.save(new DevotionSummary(devotionId, roomId, type, content, leaderId));
+            // Only the first save tells the room; later edits are quiet.
+            notificationService.guidancePosted(roomId, devotionId,
+                    type == SummaryType.SUMMARY ? NotificationType.SUMMARY_POSTED : NotificationType.REFLECTION_POSTED);
         } else {
             note.edit(content, Instant.now());
         }

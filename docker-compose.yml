@@ -10,5 +10,13 @@ services:
       - "5432:5432"
     volumes:
       - cells-db-data:/var/lib/postgresql
+  # Catches every email the backend sends, so nothing reaches a real inbox while developing.
+  # Inbox: http://localhost:8025   SMTP: localhost:1025 (the backend's default MAIL_HOST/MAIL_PORT)
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: cells-mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
 volumes:
   cells-db-data:

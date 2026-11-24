@@ -3,3 +3,5 @@ node_modules/
 .env*
 .claude
 CLAUDE.md!backend/config/application.example.yml
+
+!frontend/.env.native
