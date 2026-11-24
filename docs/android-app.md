@@ -9,11 +9,11 @@ App ID: `com.cells.app` (permanent once published on Google Play). App name: `CE
 
 | Done and tested on a real phone | Not done yet |
 | --- | --- |
-| Starts, shows login, logs in against the Render backend (native sign-in mode) | `android:allowBackup="false"` (still `true` in `AndroidManifest.xml`) |
-| Saved login survives closing the app | Rate-limiter test on the live backend (section 8) |
-| Phone registers its Firebase token with the backend | Launcher icon and splash screen (section 6), transparent notification icon |
+| Starts, shows login, logs in against the Render backend (native sign-in mode) | Rate-limiter check on the live backend, for the website and the app (section 8) |
+| Saved login survives closing the app | Launcher icon and splash screen (section 6), transparent notification icon |
+| Phone registers its Firebase token with the backend | |
 | Real push notification arrives (Firebase sender on Render, `PUSH_ENABLED=true`) | Signed release bundle, Play Console account, privacy policy (section 7) |
-| | Real SMTP email (needs your own domain), Android App Links for invitation links |
+| App backups switched off (`android:allowBackup="false"`) | Real SMTP email (needs your own domain), Android App Links for invitation links |
 
 If you are picking this project up in a new session: the repo, `CELLS - Development Roadmap`, and the product documentation
 in the Claude Project are the source of truth. This file is the Android and push part.
@@ -206,14 +206,27 @@ Check each point in the Play Console, because Google changes these rules.
 - Push: `PUSH_ENABLED=true` and `FIREBASE_CREDENTIALS_BASE64` (section 3). `MAIL_ENABLED` stays `false` until a real SMTP provider
   and your own domain exist.
 - **Check how the rate limiter sees visitors.** Logins and invitation accepts are limited to 10 per minute per client address.
-  If Render (and, for the website, Netlify's proxy) hides the real address, everyone shares one budget and ten people
-  logging in within a minute would lock the others out. To test: from two different networks (for example your phone on mobile
-  data and your computer on Wi-Fi) send about six wrong logins each within a minute. If the second network gets a 429 early,
-  the server is seeing a shared address; the fix is `APP_RATE_LIMIT_CLIENT_IP_HEADER` set to the header your host
-  documents for the real client address. I could not verify this from here, so test it once after deploying.
+  If the host hides the real address, everyone shares one budget and ten people logging in within a minute lock the others out.
+  There are two paths to test, because they reach Render differently: the website goes through Netlify's proxy, the app goes direct.
+
+  Create `login.json` containing `{"email":"nobody@example.com","password":"wrong-password"}`, then run this in PowerShell.
+  It sends 12 wrong logins and prints the status of each (use the Netlify address for the website path, the Render address for the app path):
+
+  ```powershell
+  $url = "https://cells-alliance.netlify.app/api/v1/auth/login"   # second run: https://cells-d3m6.onrender.com/api/v1/auth/login
+  1..12 | ForEach-Object { "$_ : " + (curl.exe -s -o NUL -w "%{http_code}" -X POST $url -H "Content-Type: application/json" --data "@login.json") }
+  ```
+
+  1. On your normal network you should see 401 for the first 10 and 429 from the 11th (the first request can be slow if Render is waking up).
+  2. Within the same minute, turn on your phone's hotspot (or use mobile data), connect the computer to it, and send just 2 or 3 of the same requests.
+     You should get **401, not 429**. A 429 means the second network shares the first one's budget: the server is not seeing real client addresses.
+  3. Wait a minute between runs. Running it only sends wrong logins for a made-up email; it does not lock a real account.
+
+  If the second network gets 429 on a path, set `APP_RATE_LIMIT_CLIENT_IP_HEADER` on Render to the header that host documents for the
+  real client address, and repeat. Send the result to your Claude session to pick the header.
 
 ### Android project (edit these files after `npx cap add android`)
-1. **Not done yet.** `android/app/src/main/AndroidManifest.xml`, in the `<application ...>` tag: change `android:allowBackup="true"` to `"false"`.
+1. Done: `android/app/src/main/AndroidManifest.xml` has `android:allowBackup="false"` in the `<application ...>` tag.
    Android would otherwise copy the app's stored data to Google Drive backups, and a restored copy cannot decrypt
    the saved login on a new phone.
 2. Do not add `android:usesCleartextTraffic="true"` and keep `server.url` and `server.cleartext` out of
