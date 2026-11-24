@@ -10,6 +10,7 @@ import {
   revokeRoomInvitation,
   saveOrder,
 } from '../../api/roomMembers'
+import { listReports } from '../../api/reports'
 import { getRoom } from '../../api/rooms'
 import AvailableMembersPanel from '../../components/AvailableMembersPanel.vue'
 import BaseDialog from '../../components/BaseDialog.vue'
@@ -28,6 +29,11 @@ import { formatDate, memberLabel } from '../../utils/format'
 const props = defineProps({ roomId: { type: Number, required: true } })
 
 const notice = ref('')
+const openReports = ref(0)
+// A quiet extra call: if it fails the button simply shows no number.
+onMounted(() => {
+  listReports(props.roomId).then((list) => (openReports.value = list.length)).catch(() => {})
+})
 const announcement = ref('') // read out by screen readers only
 
 // ---------- the room ----------
@@ -318,6 +324,9 @@ watch(
           </RouterLink>
           <RouterLink :to="{ name: 'leader-board', params: { roomId: room.id } }" :class="btnOutline">
             Growing Together
+          </RouterLink>
+          <RouterLink :to="{ name: 'leader-reports', params: { roomId: room.id } }" :class="btnOutline">
+            Reports<span v-if="openReports > 0"> ({{ openReports }})</span>
           </RouterLink>
         </div>
       </section>

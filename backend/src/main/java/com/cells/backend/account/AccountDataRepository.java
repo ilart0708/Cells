@@ -21,6 +21,8 @@ public class AccountDataRepository {
 
     /** What a member wrote and earned. EXP first: it points at the submission. */
     public void deleteMemberContent(Long memberId) {
+        jdbc.update("delete from content_reports where reporter_id = ? "
+                + "or submission_id in (select id from devotion_submissions where member_id = ?)", memberId, memberId);
         jdbc.update("delete from experience_records where member_id = ?", memberId);
         jdbc.update("delete from devotion_submissions where member_id = ?", memberId);
         jdbc.update("delete from daily_exemptions where member_id = ?", memberId);

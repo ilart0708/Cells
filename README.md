@@ -128,3 +128,9 @@ their rooms (numbering closes the gap). A leader needs all rooms archived first;
 Rate limited like login. Screens: Account (inside each role's area) and the public page `/delete-account`
 (the URL for the Play Console "delete account" field). Contact details for both public pages are in
 `frontend/src/constants/contact.js`.
+
+## Reporting answers
+Members can report another member's answer (`POST /api/v1/member/rooms/{roomId}/submissions/{submissionId}/report`).
+The room's leader sees open reports (`GET /api/v1/leader/rooms/{roomId}/reports`, no reporter name) and either keeps the
+answer (`.../{reportId}/dismiss`) or removes its text (`.../{reportId}/remove-answer`). A removed answer still counts for
+participation and EXP. Screens: Report button in "What others shared", and Reports in the leader's room page.

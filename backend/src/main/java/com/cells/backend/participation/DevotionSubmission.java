@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.Instant;
 
-/** A member's written understanding. Final once saved: there is no setter and no update. */
+/** A member's written understanding. Final once saved; the only change is a leader removing the text after a report. */
 @Entity
 @Table(name = "devotion_submissions")
 public class DevotionSubmission {
@@ -28,6 +28,12 @@ public class DevotionSubmission {
     @Column(name = "submitted_at", nullable = false, updatable = false)
     private Instant submittedAt = Instant.now();
 
+    @Column(name = "moderated_at")
+    private Instant moderatedAt;
+
+    /** What replaces the text of an answer the leader removed after a report. */
+    public static final String REMOVED_TEXT = "This answer was removed by the leader.";
+
     protected DevotionSubmission() {
         // required by JPA
     }
@@ -45,6 +51,13 @@ public class DevotionSubmission {
     public Long getMemberId() { return memberId; }
     public String getContent() { return content; }
     public Instant getSubmittedAt() { return submittedAt; }
+    public Instant getModeratedAt() { return moderatedAt; }
+
+    /** Removes the text only. The row stays, so participation and EXP are unchanged. */
+    public void moderate(Instant now) {
+        this.content = REMOVED_TEXT;
+        this.moderatedAt = now;
+    }
 
     @Override
     public boolean equals(Object o) {
