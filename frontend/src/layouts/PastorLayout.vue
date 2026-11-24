@@ -9,6 +9,7 @@ const navItems = [
   },
   { label: 'My Leaders', to: { name: 'pastor-leaders' } },
   { label: 'Reports', to: { name: 'pastor-reports' } },
+  { label: 'Account', to: { name: 'pastor-account' }, more: true },
 ]
 </script>
 

@@ -119,3 +119,12 @@ steps are in [docs/android-app.md](docs/android-app.md). Backend side: CORS for 
 sign-in mode: with the header `X-Client-Type: native` the refresh token is returned and accepted in the request body
 instead of the cookie. That mode is honored only for the app's own origins (or requests with no Origin, such as Postman),
 so a script on the website cannot ask for the refresh token. The website is unchanged.
+
+## Account deletion
+`POST /api/v1/account/delete` with `{ "password": "..." }` deletes the signed-in person's own account (any role except
+administrator). The user row is anonymised ("Deleted user", unusable password, DISABLED); answers, EXP, exemptions,
+summaries, notifications, phone tokens, sessions and the person's own invitation record are deleted. A member leaves
+their rooms (numbering closes the gap). A leader needs all rooms archived first; a pastor needs no assigned leaders.
+Rate limited like login. Screens: Account (inside each role's area) and the public page `/delete-account`
+(the URL for the Play Console "delete account" field). Contact details for both public pages are in
+`frontend/src/constants/contact.js`.

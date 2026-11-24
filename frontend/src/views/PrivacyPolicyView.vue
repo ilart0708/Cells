@@ -1,9 +1,11 @@
 <script setup>
-// Public page: no login needed. Edit the three constants below, then redeploy.
+// Public page: no login needed. The contact details live in constants/contact.js.
 // The same address goes into the Play Console "Privacy policy" field: https://<your site>/privacy
+import { CONTACT_EMAIL, OPERATOR_NAME } from '../constants/contact'
+
 const APP_NAME = 'CELLS'
-const OPERATOR_NAME = 'REPLACE WITH YOUR NAME OR CHURCH NAME'
-const CONTACT_EMAIL = 'REPLACE-WITH-YOUR-EMAIL@example.com'
+const OPERATOR_NAME = 'Jesus Holiness Alliance Church (JHAC)'
+const CONTACT_EMAIL = 'thuury007@gmail.com'
 const LAST_UPDATED = '24 November 2026'
 
 const sections = [
@@ -64,7 +66,7 @@ const sections = [
   {
     title: 'Your choices and deleting your account',
     paragraphs: [
-      `You can ask us to delete your account and your personal data at any time. Email ${CONTACT_EMAIL} from the address on your account with the subject “Delete my CELLS account”. We will confirm and delete your account, your personal details and what you wrote.`,
+      `You can delete your account yourself at any time: sign in, open Account (under More on a phone), and choose Delete my account. If you cannot sign in, email ${CONTACT_EMAIL} from the address on your account with the subject “Delete my CELLS account”. Deleting removes your name, email, password, what you wrote, your experience points, your notifications and your phone registrations. Participation counts in your group's history stay, without your name. Details: /delete-account.`,
       'You can also ask us for a copy of your data, or to correct it, at the same address.',
     ],
   },

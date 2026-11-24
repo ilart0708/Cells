@@ -61,6 +61,13 @@ async function submit() {
         @submit.prevent="submit"
       >
         <p
+          v-if="route.query.deleted"
+          role="status"
+          class="rounded-xl bg-gold-100 px-4 py-3 text-sm font-semibold text-navy-900"
+        >
+          Your account has been deleted.
+        </p>
+        <p
           v-if="errorMessage"
           role="alert"
           class="rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
@@ -118,6 +125,13 @@ async function submit() {
           class="inline-flex min-h-11 items-center text-sm font-semibold text-on-navy-soft underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500"
         >
           Privacy Policy
+        </RouterLink>
+        <span class="mx-2 text-on-navy-soft" aria-hidden="true">·</span>
+        <RouterLink
+          :to="{ name: 'delete-account' }"
+          class="inline-flex min-h-11 items-center text-sm font-semibold text-on-navy-soft underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500"
+        >
+          Delete account
         </RouterLink>
       </p>
     </div>

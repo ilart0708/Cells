@@ -53,6 +53,14 @@ public class User {
     public void disable() { this.status = UserStatus.DISABLED; }
     public void activate() { this.status = UserStatus.ACTIVE; }
 
+    /** Account deletion: nothing that identifies the person is kept. The row stays so history keeps its links. */
+    public void anonymize(String unusablePasswordHash) {
+        this.email = "deleted-" + id + "@deleted.invalid";
+        this.fullName = "Deleted user";
+        this.passwordHash = unusablePasswordHash;
+        this.status = UserStatus.DISABLED;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

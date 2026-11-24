@@ -15,6 +15,7 @@ const navItems = [
   },
   { label: 'Experience', to: { name: 'member-experience' } },
   { label: 'History', to: { name: 'member-history' }, alsoActiveOn: ['member-history-room'] },
+  { label: 'Account', to: { name: 'member-account' }, more: true },
 ]
 </script>
 

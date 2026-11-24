@@ -32,6 +32,10 @@
     {
       "key": "refreshToken",
       "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
     }
   ],
   "item": [
@@ -860,6 +864,57 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"content\": \"John 3:16 reminds us that God's love is freely given.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Delete my account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/account/delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "account",
+                "delete"
+              ]
+            },
+            "description": "Deletes the logged-in person's own account (Google Play requirement). Log in first as the account you want to delete. Body: the current password, asked again as a safety check. Returns 204 and clears the website refresh cookie. A wrong password returns 422 (not 401). Members leave their rooms and lose their answers and EXP; a leader with active rooms gets 422 (archive them first); a pastor with assigned leaders gets 422; administrators get 422. The account is anonymised (name 'Deleted user', unusable password) and can never sign in again. DESTRUCTIVE: use a throwaway account.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/account/delete\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"password\": \"{{password}}\"\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{password}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
