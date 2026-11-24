@@ -199,6 +199,7 @@ Check each point in the Play Console, because Google changes these rules.
 ## 8. Production checklist
 
 ### Backend on Render
+- Rate limiter: `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` (see the check below). Leave `APP_RATE_LIMIT_DEBUG` unset.
 - Required variables: `DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `JWT_SECRET` (long and random),
   `APP_FRONTEND_URL`, and `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` for the first administrator.
 - Leave `CORS_ALLOWED_ORIGINS` unset, or set it to exactly `https://localhost,capacitor://localhost` (the production default).
@@ -224,6 +225,17 @@ Check each point in the Play Console, because Google changes these rules.
 
   If the second network gets 429 on a path, set `APP_RATE_LIMIT_CLIENT_IP_HEADER` on Render to the header that host documents for the
   real client address, and repeat. Send the result to your Claude session to pick the header.
+
+  **Result of the check on 24 Nov 2026 (Render behind Cloudflare, website behind Netlify):**
+
+  | Path | `remoteAddr` | Header with the visitor's own address |
+  | --- | --- | --- |
+  | App, straight to Render | a Cloudflare address that changes on every request | `CF-Connecting-IP` (same on every request, set by Cloudflare) |
+  | Website, through Netlify | a Cloudflare address that changes on every request | `X-Nf-Client-Connection-Ip` (set by Netlify). `CF-Connecting-IP` there is a Netlify server address that changes |
+
+  So set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render: the app path is then limited per visitor. The website path stays
+  effectively unlimited until the backend verifies Netlify's signed proxy header (`x-nf-sign`) and only then trusts
+  `X-Nf-Client-Connection-Ip`. Do not set `X-Nf-Client-Connection-Ip` as the header on its own: on the direct path anyone can write it.
 
   **If there is no 429 at all** (checked on 24 Nov 2026: 12 wrong logins in a row all returned 401, through Netlify and directly to
   Render), the limiter is not seeing one stable address per visitor. First check that Render's Environment has no
