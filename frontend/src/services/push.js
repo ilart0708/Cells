@@ -51,7 +51,7 @@ async function ensureListeners(PushNotifications) {
 
 /** Ask for permission and register this phone. Safe to call more than once. */
 export async function enablePush() {
-  if (!isNative) return
+  if (!isNative || import.meta.env.VITE_PUSH_ENABLED !== 'true') return
   active = true
   try {
     const { PushNotifications } = await import('@capacitor/push-notifications')
