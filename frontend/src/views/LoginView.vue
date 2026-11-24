@@ -111,6 +111,15 @@ async function submit() {
           {{ loading ? 'Signing in…' : 'Sign in' }}
         </button>
       </form>
+
+      <p class="mt-6 text-center">
+        <RouterLink
+          :to="{ name: 'privacy' }"
+          class="inline-flex min-h-11 items-center text-sm font-semibold text-on-navy-soft underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500"
+        >
+          Privacy Policy
+        </RouterLink>
+      </p>
     </div>
   </main>
 </template>
