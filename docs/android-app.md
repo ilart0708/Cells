@@ -5,6 +5,19 @@ its cookie login and its `/api` proxy. The app is built separately (`npm run bui
 
 App ID: `com.cells.app` (permanent once published on Google Play). App name: `CELLS`.
 
+## Status (24 November 2026)
+
+| Done and tested on a real phone | Not done yet |
+| --- | --- |
+| Starts, shows login, logs in against the Render backend (native sign-in mode) | `android:allowBackup="false"` (still `true` in `AndroidManifest.xml`) |
+| Saved login survives closing the app | Rate-limiter test on the live backend (section 8) |
+| Phone registers its Firebase token with the backend | Launcher icon and splash screen (section 6), transparent notification icon |
+| Real push notification arrives (Firebase sender on Render, `PUSH_ENABLED=true`) | Signed release bundle, Play Console account, privacy policy (section 7) |
+| | Real SMTP email (needs your own domain), Android App Links for invitation links |
+
+If you are picking this project up in a new session: the repo, `CELLS - Development Roadmap`, and the product documentation
+in the Claude Project are the source of truth. This file is the Android and push part.
+
 ## How the app differs from the website
 
 | | Website (Netlify) | Android app |
@@ -38,16 +51,20 @@ Create a file `login.json` containing `{"email":"nobody@example.com","password":
 | --- | --- | --- | --- |
 | 1 | The app may call the API | `curl.exe -i -X OPTIONS http://localhost:8080/api/v1/auth/login -H "Origin: https://localhost" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type,x-client-type"` | 200, `Access-Control-Allow-Origin: https://localhost`, and `x-client-type` in `Access-Control-Allow-Headers`. No `Access-Control-Allow-Credentials` |
 | 2 | Other sites may not | the same command with `-H "Origin: https://evil.example"` | 403 `Invalid CORS request` |
-| 3 | The website cannot ask for the refresh token | `curl.exe -i -X POST http://localhost:8080/api/v1/auth/login -H "Origin: https://cells-alliance.netlify.app" -H "X-Client-Type: native" -H "Content-Type: application/json" --data "@login.json"` with a REAL account in the file | `Set-Cookie` present and no `refreshToken` in the body |
+| 3 | The website works, and cannot ask for the refresh token | `curl.exe -i -X POST http://localhost:8080/api/v1/auth/login -H "Origin: http://localhost:5173" -H "X-Client-Type: native" -H "Content-Type: application/json" --data "@login.json"` with a REAL account in the file | 200, `Set-Cookie` present and no `refreshToken` in the body. (Locally the website origin is `http://localhost:5173`; against Render use `https://cells-alliance.netlify.app`, which is your `APP_FRONTEND_URL`.) A 403 `Invalid CORS request` here is the bug where the website's own login is refused |
 | 4 | The app does get it | the same with `-H "Origin: https://localhost"` | `refreshToken` in the body and no `Set-Cookie` |
 | 5 | Too many attempts is readable by the app | send check 4's request with the wrong password 11 times in one minute | the 11th is 429 and has `Access-Control-Allow-Origin: https://localhost`, `Retry-After`, and `Access-Control-Expose-Headers: Retry-After` |
 
 Check 5 is the one that failed before this fix: the 429 had no CORS headers, so the app showed a vague network error
 instead of "Too many attempts. Please wait N seconds."
 
-## 2. Install and create the Android project (once)
+## 2. Install and create the Android project (already done in this repo)
 
-Run in PowerShell, inside the `frontend` folder:
+The Android project is already committed in `frontend/android/`. On a new machine you only need to run `npm install`
+inside `frontend`, then continue with step 3 (Firebase file) and step 4 (Run). Do not run `npx cap add android` again:
+it complains that the folder exists.
+
+Only if you ever have to recreate the project from nothing, run in PowerShell, inside the `frontend` folder:
 
 ```powershell
 npm install @capacitor/core @capacitor/android @capacitor/push-notifications @aparajita/capacitor-secure-storage
@@ -62,14 +79,55 @@ folder too (Capacitor adds its own `.gitignore` inside it).
 
 ## 3. Firebase (needed for push notifications)
 
-1. Open the Firebase console, create a project (for example `cells`).
-2. Add an **Android app** to it. The package name must be exactly `com.cells.app`.
-3. Download `google-services.json` and put it in `frontend/android/app/`.
-   It is not a password, but keep it out of public screenshots. Do not put the service-account key anywhere in the repo.
-4. Run `npx cap sync android` again.
+Push has two halves and **two separate switches**:
 
-The backend needs a separate service-account key (Project settings, Service accounts) to send pushes. That comes
-with the next step (the Firebase sender).
+| Half | Switch | Where |
+| --- | --- | --- |
+| The phone asks for permission and registers with Firebase | `VITE_PUSH_ENABLED=true` at build time | `frontend/.env.native.local` (ignored by Git) |
+| The server sends pushes | `PUSH_ENABLED=true` and `FIREBASE_CREDENTIALS_BASE64` | Render environment |
+
+### The phone side
+
+1. Open the Firebase console, create a project (this one is called `cells`).
+2. Add an **Android app** to it. The package name must be exactly `com.cells.app`.
+3. Download `google-services.json` and put it in `frontend/android/app/`. It is ignored by Git, so on a new machine
+   download it again (Project settings, Your apps). Keep it out of public screenshots.
+4. Put `VITE_PUSH_ENABLED=true` in `frontend/.env.native.local`.
+5. Run `npm run cap:sync`, then Run in Android Studio.
+
+Turning the switch on **without** `google-services.json` crashes the app right after login. With the switch off (the default)
+the app never asks for notification permission and never registers a phone.
+
+### The server side
+
+1. Firebase console, Project settings, Service accounts, **Generate new private key**. Save the `.json` file outside the
+   project folder (for example `C:\Users\<you>\Secrets\`). It is a password: anyone who has it can send notifications as the app.
+2. Turn it into one line and copy it (PowerShell): `Set-Clipboard ([Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\to\key.json")))`
+3. In Render, Environment: `FIREBASE_CREDENTIALS_BASE64` = the pasted text, and `PUSH_ENABLED` = `true`. Save (this redeploys).
+4. In the Render log after the deploy look for `Firebase push sender is ready.` If you see
+   `Firebase credentials could not be loaded` the variable was pasted wrongly. The backend still starts, but only logs pushes.
+5. To check on your own computer first: set `$env:FIREBASE_CREDENTIALS_BASE64` in PowerShell, run the backend, and look for the same line.
+   Remove the variable from that window afterwards (`Remove-Item Env:FIREBASE_CREDENTIALS_BASE64`).
+
+Never paste the key, its base64 text, or the file contents into a chat, an issue, or Git.
+
+### Testing a push
+
+1. Log in on the phone as a member of a room, allow notifications, then close the app.
+2. On the website, log in as that room's leader and create a devotion dated today. The members get a "new devotion" push.
+3. If nothing arrives:
+
+```sql
+select type, status, attempts, push_sent_at, last_error from notifications order by id desc limit 5;
+select user_id, platform, left(token, 12) as token_start, last_seen_at from device_tokens order by id desc;
+```
+
+No `device_tokens` row: the phone did not register (log out and in again; check `VITE_PUSH_ENABLED` and `google-services.json`).
+A row stuck at `PENDING` or `FAILED`: read `last_error` and the Render log. "no Firebase sender is installed" means the
+credentials variable was not read. "Firebase could not deliver one push: <code>" is Firebase's own reason.
+
+Known limit: if a person has two phones and one push fails temporarily, the retry sends to both again, so the phone that worked
+gets a duplicate. Fixing it needs per-phone delivery tracking.
 
 ## 4. Run it
 
@@ -90,8 +148,8 @@ After every change to the Vue code run `npm run cap:sync` again, then Run.
 
 1. Log in on the phone with a member account. You should land on the member home.
 2. Close the app completely and open it again. You should still be logged in (the saved refresh token).
-3. Allow notifications when Android asks.
-4. In the database, confirm the phone registered:
+3. Only if the phone was built with `VITE_PUSH_ENABLED=true` (section 3): allow notifications when Android asks.
+4. Same condition: in the database, confirm the phone registered:
 
 ```sql
 select user_id, platform, left(token, 12) as token_start, last_seen_at from device_tokens order by id desc;
@@ -99,8 +157,15 @@ select user_id, platform, left(token, 12) as token_start, last_seen_at from devi
 
 5. Log out in the app. That row should disappear.
 
-If login fails with "Cannot reach the server": the backend is not deployed with the CORS change, or
-`VITE_API_BASE_URL` is wrong (check `frontend/.env.native`, then `npm run cap:sync`).
+If login fails with "Cannot reach the server": that text appears whenever the browser engine gets no usable answer at all,
+which means a failed CORS check, DNS, TLS or no connection. It does **not** mean the server is down, and a real server
+answer (401, 403, 429, 500) would show the server's own message instead. Work through this:
+
+1. The backend on Render is older than the CORS change. Run the preflight check from "Before you deploy" against the Render
+   address. If the answer has no `Access-Control-Allow-Origin`, the deployed backend is out of date.
+2. `VITE_API_BASE_URL` is wrong (check `frontend/.env.native`, then `npm run cap:sync`).
+3. Read the real error: connect the phone by USB, open `chrome://inspect/#devices` in Chrome, click **inspect** on the CELLS
+   WebView, and look at the Console ("blocked by CORS policy ...") and the Network tab (the `OPTIONS` request and its status).
 
 ## 6. App icon and splash screen
 
@@ -136,9 +201,10 @@ Check each point in the Play Console, because Google changes these rules.
 ### Backend on Render
 - Required variables: `DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `JWT_SECRET` (long and random),
   `APP_FRONTEND_URL`, and `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` for the first administrator.
-- Leave `CORS_ALLOWED_ORIGINS` unset: the production default is exactly `https://localhost` and `capacitor://localhost`.
+- Leave `CORS_ALLOWED_ORIGINS` unset, or set it to exactly `https://localhost,capacitor://localhost` (the production default).
   Never use a wildcard. If you ever give the app a custom host, change it here and in `capacitor.config.json` together.
-- `MAIL_ENABLED` stays `false` and `PUSH_ENABLED` stays `false` until a real SMTP provider and the Firebase sender exist.
+- Push: `PUSH_ENABLED=true` and `FIREBASE_CREDENTIALS_BASE64` (section 3). `MAIL_ENABLED` stays `false` until a real SMTP provider
+  and your own domain exist.
 - **Check how the rate limiter sees visitors.** Logins and invitation accepts are limited to 10 per minute per client address.
   If Render (and, for the website, Netlify's proxy) hides the real address, everyone shares one budget and ten people
   logging in within a minute would lock the others out. To test: from two different networks (for example your phone on mobile
@@ -147,7 +213,7 @@ Check each point in the Play Console, because Google changes these rules.
   documents for the real client address. I could not verify this from here, so test it once after deploying.
 
 ### Android project (edit these files after `npx cap add android`)
-1. `android/app/src/main/AndroidManifest.xml`, in the `<application ...>` tag: set `android:allowBackup="false"`.
+1. **Not done yet.** `android/app/src/main/AndroidManifest.xml`, in the `<application ...>` tag: change `android:allowBackup="true"` to `"false"`.
    Android would otherwise copy the app's stored data to Google Drive backups, and a restored copy cannot decrypt
    the saved login on a new phone.
 2. Do not add `android:usesCleartextTraffic="true"` and keep `server.url` and `server.cleartext` out of
@@ -164,6 +230,8 @@ Check each point in the Play Console, because Google changes these rules.
   (an `assetlinks.json` file on your own domain), so it waits for your custom domain.
 - A transparent notification icon (without it Android shows a white square for the small icon).
 - A refresh-token reuse alert and audit log (Phase 10 of the roadmap).
+- Per-phone push delivery tracking (see "Known limit" in section 3).
+- A GitHub Dependabot alert (1 moderate) is open on the default branch. Check it before the first release.
 
 ## 9. Troubleshooting: white screen on the phone
 
@@ -185,9 +253,3 @@ A white screen means the page loaded but the Vue app did not start. Since the st
    minute to wake), then shows the login page and finishes in the background.
 6. **Cleared by a fresh start.** Uninstall the app from the phone and run it again from Android Studio, to rule out
    leftovers from an earlier install.
-
-## Push switch (VITE_PUSH_ENABLED)
-
-Phone push is off by default. The app only asks for notification permission and registers with Firebase when `VITE_PUSH_ENABLED=true` was set at build time. Turning it on without `google-services.json` in `frontend/android/app/` crashes the app right after login.
-
-To turn it on for your own builds, put `VITE_PUSH_ENABLED=true` in `frontend/.env.native.local` (ignored by Git). `google-services.json` is also ignored by Git. On a new machine, download it again from the Firebase console (Project settings, Your apps), then run `npm run cap:sync`.
