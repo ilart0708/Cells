@@ -39,7 +39,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
 
     private static final Set<String> LIMITED_PATHS =
-            Set.of("/api/v1/auth/login", "/api/v1/invitations/accept");
+            Set.of("/api/v1/auth/login", "/api/v1/invitations/accept", "/api/v1/account/delete");
     private static final int PURGE_THRESHOLD = 10_000;
 
     private record Window(long startedAtMs, int count) {

@@ -16,6 +16,8 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
 
     List<RoomMember> findByRoomIdAndRemovedAtIsNullOrderByParticipationNumber(Long roomId);
 
+    List<RoomMember> findByMemberIdAndRemovedAtIsNull(Long memberId);
+
     @Query("select coalesce(max(rm.participationNumber), 0) from RoomMember rm "
             + "where rm.roomId = :roomId and rm.removedAt is null")
     int maxActiveNumber(@Param("roomId") Long roomId);

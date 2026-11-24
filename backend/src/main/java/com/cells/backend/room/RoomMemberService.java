@@ -132,6 +132,31 @@ public class RoomMemberService {
         assignNumbers(roomId, remaining);
     }
 
+    /**
+     * Account deletion: the member leaves every room they are in (history is kept, the gap in the numbering is
+     * closed) so nobody is left waiting for them. Rooms are locked in id order, so two deletions cannot deadlock.
+     */
+    @Transactional
+    public void leaveAllRooms(Long memberId) {
+        List<Long> roomIds = roomMemberRepository.findByMemberIdAndRemovedAtIsNull(memberId).stream()
+                .map(RoomMember::getRoomId).sorted().toList();
+        for (Long roomId : roomIds) {
+            Room room = roomRepository.findByIdForUpdate(roomId).orElse(null);
+            if (room == null) {
+                continue;
+            }
+            roomMemberRepository.findByRoomIdAndMemberIdAndRemovedAtIsNull(roomId, memberId).ifPresent(membership -> {
+                membership.markRemoved(Instant.now());
+                roomMemberRepository.flush();
+            });
+            if (room.getStatus() == RoomStatus.ACTIVE) {
+                assignNumbers(roomId, roomMemberRepository
+                        .findByRoomIdAndRemovedAtIsNullOrderByParticipationNumber(roomId)
+                        .stream().map(RoomMember::getId).toList());
+            }
+        }
+    }
+
     // Locks the room row, so changes to one room's roster take turns. Another leader's room looks
     // exactly like a room that does not exist.
     private Room lockOpenRoom(Long leaderId, Long roomId) {

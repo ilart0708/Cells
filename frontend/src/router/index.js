@@ -99,6 +99,11 @@ const router = createRouter({
           props: (route) => ({ roomId: Number(route.params.roomId) }),
         },
         {
+          path: 'account',
+          name: 'pastor-account',
+          component: () => import('../views/AccountView.vue'),
+        },
+        {
           path: 'reports',
           name: 'pastor-reports',
           component: () => import('../views/pastor/PastorReportsView.vue'),
@@ -163,6 +168,11 @@ const router = createRouter({
           }),
         },
         {
+          path: 'account',
+          name: 'leader-account',
+          component: () => import('../views/AccountView.vue'),
+        },
+        {
           path: 'rooms/:roomId(\\d+)/board',
           name: 'leader-board',
           component: () => import('../views/leader/LeaderBoardView.vue'),
@@ -208,6 +218,11 @@ const router = createRouter({
           }),
         },
         {
+          path: 'account',
+          name: 'member-account',
+          component: () => import('../views/AccountView.vue'),
+        },
+        {
           path: 'experience',
           name: 'member-experience',
           component: () => import('../views/member/ExperienceView.vue'),
@@ -235,6 +250,12 @@ const router = createRouter({
       path: '/privacy',
       name: 'privacy',
       component: () => import('../views/PrivacyPolicyView.vue'),
+      meta: { public: true },
+    },
+    {
+      path: '/delete-account',
+      name: 'delete-account',
+      component: () => import('../views/DeleteAccountInfoView.vue'),
       meta: { public: true },
     },
     {

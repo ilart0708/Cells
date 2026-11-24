@@ -16,6 +16,7 @@ const navItems = [
       'leader-board',
     ],
   },
+  { label: 'Account', to: { name: 'leader-account' }, more: true },
 ]
 </script>
 
