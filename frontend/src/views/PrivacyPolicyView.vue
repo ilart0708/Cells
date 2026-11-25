@@ -4,7 +4,7 @@
 import { CONTACT_EMAIL, OPERATOR_NAME } from '../constants/contact'
 
 const APP_NAME = 'CELLS'
-const LAST_UPDATED = '24 November 2026'
+const LAST_UPDATED = '25 November 2026'
 
 const sections = [
   {
@@ -21,6 +21,7 @@ const sections = [
       'Your church, your cell group room and your place in its participation order.',
       'What you write: your understanding of each passage, and the summaries or reflections a leader writes.',
       'Participation records: whether you submitted on a given day, a day off granted by your leader, and the experience points you earned.',
+      'Reports: if you report another member’s answer, we store the reason you chose, your optional note, and which answer it was about.',
       'If you turn on notifications: a device token, so your phone can receive reminders.',
       'Basic technical data, such as your network address, used to block repeated failed sign-in attempts.',
     ],
@@ -44,6 +45,7 @@ const sections = [
     title: 'Who can see what',
     list: [
       'Your written understanding is shown to your cell group: your leader and the members of your room.',
+      'If an answer is reported, only the leader of that room sees the answer, the reason and the note (if one was written). The leader never sees who made the report. The leader can keep the answer or remove it. A removed answer’s text is replaced with “This answer was removed by the leader.” and still counts for participation and experience points.',
       'Pastors see participation statistics for their leaders and rooms, not individual written reflections.',
       'Platform administrators manage accounts and can see participation records.',
       'We do not share your data with advertisers or other companies. We use service providers to run the app (hosting, database and, if turned on, notifications and email). They process data for us and may not use it for their own purposes.',
@@ -53,6 +55,7 @@ const sections = [
     title: 'How long we keep it',
     paragraphs: [
       'We keep your data while your account exists, so your participation history stays available to you.',
+      'A leader can archive a room that is no longer in use. An archived room and its history stay stored, but nobody can change it, and members no longer see it on their boards.',
     ],
   },
   {
@@ -64,7 +67,7 @@ const sections = [
   {
     title: 'Your choices and deleting your account',
     paragraphs: [
-      `You can delete your account yourself at any time: sign in, open Account (under More on a phone), and choose Delete my account. If you cannot sign in, email ${CONTACT_EMAIL} from the address on your account with the subject “Delete my CELLS account”. Deleting removes your name, email, password, what you wrote, your experience points, your notifications and your phone registrations. Participation counts in your group's history stay, without your name. Details: /delete-account.`,
+      `You can delete your account yourself at any time: sign in, open Account (under More on a phone), and choose Delete my account. If you cannot sign in, email ${CONTACT_EMAIL} from the address on your account with the subject “Delete my CELLS account”. Deleting removes your name, email, password, what you wrote, your experience points, the reports you made and the reports about your answers, your notifications and your phone registrations. A leader must archive all their rooms before deleting their account. Participation counts in your group's history stay, without your name. Details: /delete-account.`,
       'You can also ask us for a copy of your data, or to correct it, at the same address.',
     ],
   },
