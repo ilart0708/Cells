@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue'
-import { createChurch, listChurches, renameChurch } from '../../api/churches'
+import { createChurch, listChurches, renameChurch, setChurchVerified } from '../../api/churches'
 import { ApiError } from '../../api/http'
 import BaseDialog from '../../components/BaseDialog.vue'
 import { btnOutline, btnPrimary } from '../../components/buttonClasses'
@@ -22,6 +22,22 @@ function openCreate() {
 
 function openRename(church) {
   Object.assign(form, { open: true, editing: church, name: church.name, error: '', nameError: '' })
+}
+
+const verifyingId = ref(null)
+
+async function toggleVerified(church) {
+  if (verifyingId.value !== null) return
+  verifyingId.value = church.id
+  try {
+    await setChurchVerified(church.id, !church.verified)
+    notice.value = church.verified ? 'Church marked as not verified.' : 'Church verified.'
+    await churches.reload()
+  } catch (e) {
+    notice.value = e instanceof ApiError ? e.message : 'Something went wrong. Please try again.'
+  } finally {
+    verifyingId.value = null
+  }
 }
 
 async function save() {
@@ -87,8 +103,21 @@ async function save() {
             <div class="min-w-0 flex-1">
               <p class="truncate font-semibold text-navy-900">{{ church.name }}</p>
               <p class="text-sm text-muted">Added {{ formatDate(church.createdAt) }}</p>
+              <p v-if="church.selfRegistered" class="text-sm text-muted">
+                Registered by a leader · Pastor: {{ church.pastorName }}<span v-if="church.pastorEmail"> ({{ church.pastorEmail }})</span>
+                · {{ church.verified ? 'Verified' : 'Not verified' }}
+              </p>
             </div>
             <StatusPill :status="church.status" />
+            <button
+              v-if="church.selfRegistered"
+              type="button"
+              :class="church.verified ? btnOutline : btnPrimary"
+              :disabled="verifyingId === church.id"
+              @click="toggleVerified(church)"
+            >
+              {{ church.verified ? 'Remove verification' : 'Verify' }}<span class="sr-only"> {{ church.name }}</span>
+            </button>
             <button type="button" :class="btnOutline" @click="openRename(church)">
               Rename<span class="sr-only"> {{ church.name }}</span>
             </button>

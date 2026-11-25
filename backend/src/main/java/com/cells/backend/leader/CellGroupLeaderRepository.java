@@ -12,15 +12,15 @@ public interface CellGroupLeaderRepository extends JpaRepository<CellGroupLeader
 
     String SELECT_DTO = """
             select new com.cells.backend.leader.LeaderResponse(
-                u.id, u.fullName, u.email, u.status, c.id, c.name, pu.id, pu.fullName, u.createdAt)
+                u.id, u.fullName, u.email, u.status, c.id, c.name, pu.id, coalesce(pu.fullName, c.pastorName), u.createdAt, c.verified)
             """;
 
     String FROM_JOINS = """
             from CellGroupLeader l
             join l.church c
             join User u on u.id = l.userId
-            join PastorLeader pl on pl.leaderId = l.userId
-            join User pu on pu.id = pl.pastorId
+            left join PastorLeader pl on pl.leaderId = l.userId
+            left join User pu on pu.id = pl.pastorId
             """;
 
     String MATCHES = " where (lower(u.fullName) like :pattern or lower(u.email) like :pattern) ";

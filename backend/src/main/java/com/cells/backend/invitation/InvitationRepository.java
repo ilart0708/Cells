@@ -19,6 +19,11 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
 
     // Row lock: a second simultaneous accept waits here, then sees the invitation as used.
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    // Member invitations that can still be accepted (used for the limit of an unverified church).
+    @Query("select count(i) from Invitation i where i.church.id = :churchId and i.role = com.cells.backend.user.Role.MEMBER "
+            + "and i.acceptedAt is null and i.revokedAt is null and i.expiresAt > :now")
+    long countPendingMemberInvitations(@Param("churchId") Long churchId, @Param("now") java.time.Instant now);
+
     @Query("select i from Invitation i where i.tokenHash = :hash")
     Optional<Invitation> findByTokenHashForUpdate(@Param("hash") String hash);
 

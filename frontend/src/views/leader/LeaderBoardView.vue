@@ -93,7 +93,7 @@ watch(() => props.roomId, loadAll)
         <div class="min-w-0 space-y-2">
           <h1 class="text-2xl font-bold text-navy-900">Growing Together</h1>
           <div class="flex flex-wrap items-start gap-2">
-            <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :level="2" />
+            <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified" :level="2" />
             <StatusPill v-if="room.status === 'ARCHIVED'" status="ARCHIVED" />
           </div>
           <p class="text-sm text-muted">{{ formatMonth(board.monthStart) }} · {{ daysLeftText }}</p>

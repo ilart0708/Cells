@@ -91,7 +91,7 @@ public class DevSeedRunner implements ApplicationRunner {
             return;
         }
 
-        Church church = churchRepository.findByNameIgnoreCase("Demo Church")
+        Church church = churchRepository.findByNameIgnoreCaseAndSelfRegisteredFalse("Demo Church")
                 .orElseGet(() -> churchRepository.save(new Church("Demo Church")));
 
         User pastor = seed("pastor@example.com", "Test Pastor", Role.PASTOR);

@@ -317,7 +317,7 @@ watch(() => [props.roomId, props.devotionId], load)
     <template v-else>
       <header class="space-y-2">
         <h1 class="text-2xl font-bold text-navy-900">{{ editing ? 'Edit devotion' : 'Create devotion' }}</h1>
-        <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :level="2" />
+        <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified" :level="2" />
       </header>
 
       <div class="gap-6 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">

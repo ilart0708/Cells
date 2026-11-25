@@ -8,5 +8,5 @@ public record LeaderResponse(
         Long id, String fullName, String email, UserStatus status,
         Long churchId, String churchName,
         Long pastorId, String pastorName,
-        Instant createdAt) {
+        Instant createdAt, boolean churchVerified) {
 }

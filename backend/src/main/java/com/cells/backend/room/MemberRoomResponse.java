@@ -2,11 +2,15 @@ package com.cells.backend.room;
 
 import java.time.Instant;
 
-/** A room as its member sees it. Screens show "churchName – roomName" with "Led by leaderName" below. */
+/**
+ * A room as its member sees it. Screens show "churchName – roomName" with "Led by leaderName" below.
+ * When churchVerified is false, screens also show "Pastor: pastorName (not verified)".
+ */
 public record MemberRoomResponse(
         Long roomId, String roomName,
         Long churchId, String churchName,
         String leaderName,
         Integer myParticipationNumber, Long memberCount,
-        Instant joinedAt) {
+        Instant joinedAt,
+        String pastorName, boolean churchVerified) {
 }

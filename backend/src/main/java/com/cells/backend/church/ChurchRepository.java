@@ -8,11 +8,12 @@ import java.util.Optional;
 
 public interface ChurchRepository extends JpaRepository<Church, Long> {
 
-    boolean existsByNameIgnoreCase(String name);
+    // Only administrator-created churches have unique names (see migration V23).
+    boolean existsByNameIgnoreCaseAndSelfRegisteredFalse(String name);
 
-    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
+    boolean existsByNameIgnoreCaseAndSelfRegisteredFalseAndIdNot(String name, Long id);
 
     Page<Church> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    Optional<Church> findByNameIgnoreCase(String name);
+    Optional<Church> findByNameIgnoreCaseAndSelfRegisteredFalse(String name);
 }

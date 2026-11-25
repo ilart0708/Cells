@@ -42,4 +42,10 @@ public class ChurchController {
     public ChurchResponse rename(@PathVariable Long id, @Valid @RequestBody ChurchRequest request) {
         return churchService.rename(id, request);
     }
+
+    /** Verifies (or un-verifies) a self-registered church. Verified churches have no limits on rooms and members. */
+    @PutMapping("/{id}/verification")
+    public ChurchResponse setVerified(@PathVariable Long id, @Valid @RequestBody ChurchVerificationRequest request) {
+        return churchService.setVerified(id, request.verified());
+    }
 }

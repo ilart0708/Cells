@@ -124,7 +124,7 @@ watch(() => props.roomId, loadAll)
           <RoomTitle
             :church-name="room.churchName"
             :room-name="room.roomName"
-            :leader-name="room.leaderName"
+            :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified"
             :level="2"
           />
           <p class="text-sm text-muted">{{ formatMonth(board.monthStart) }} · {{ daysLeftText }}</p>
