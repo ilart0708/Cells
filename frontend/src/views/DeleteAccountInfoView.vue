@@ -34,6 +34,7 @@ import { CONTACT_EMAIL } from '../constants/contact'
           <ul class="mt-2 list-disc space-y-1 pl-5 text-base text-muted">
             <li>Your name, email address and password.</li>
             <li>Your written answers and your experience points.</li>
+            <li>The reports you made, and the reports about your answers.</li>
             <li>Group summaries and reflections you wrote as a leader.</li>
             <li>Your notifications, phone registrations and sign-in sessions.</li>
           </ul>
