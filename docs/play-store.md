@@ -95,11 +95,12 @@ Reasons offered: Offensive or hateful, Harassment or bullying, Inappropriate or 
 Limits to be honest about:
 - Reports go to the room's leader, not to an administrator, and there is no per-user block.
 - Closed groups only: nobody can read a room's answers without an invitation, and a member sees others' answers only after sharing their own.
-- Leaders who sign up themselves agree to short community rules (no hateful, harassing or sexual content; review reports) on the
-  "Create your group" page, and an unverified group is limited to 3 rooms and 30 members until an administrator verifies it.
-- **Remaining gap:** Google's UGC policy expects user terms that forbid objectionable content, accepted before posting. Members
-  (who write the answers) and invited leaders do not see or accept the rules yet. The cheapest fix is the same rules text and an accept
-  checkbox on the accept-invitation page. Do this before production if the review asks for it.
+- Everyone agrees to short community rules before an account is created, on the page where they join: members, invited leaders and
+  pastors on the accept-invitation page (rules shown for their role), and leaders who create their own group on "Create your group"
+  (no hateful, harassing or sexual content; leaders review reports). The server rejects sign-up without the agreement.
+- An unverified (self-registered) group is limited to 3 rooms and 30 members until an administrator verifies it.
+- Accounts created before this change did not see the rules. If the review asks, say new accounts agree at sign-up; there is no
+  re-prompt for older accounts.
 - The typed pastor name and optional pastor email of a self-registered group belong to a third person. They are only used to show who
   the group answers to; the email is visible to administrators only. No new Data safety category is needed (name and email are already declared).
 

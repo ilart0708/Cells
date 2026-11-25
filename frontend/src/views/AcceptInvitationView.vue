@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { ApiError } from '../api/http'
 import { previewInvitation } from '../api/invitations'
+import { RULES_BY_ROLE } from '../constants/communityRules'
 import { ROLE_HOME, ROLE_LABEL } from '../constants/roles'
 import { useAuthStore } from '../stores/auth'
 import RoomTitle from '../components/RoomTitle.vue'
@@ -29,6 +30,7 @@ const fullName = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const showPassword = ref(false)
+const acceptRules = ref(false)
 const submitting = ref(false)
 const errorMessage = ref('')
 const fieldErrors = ref({})
@@ -71,6 +73,9 @@ function validate() {
   if (confirmPassword.value !== password.value) {
     errors.confirmPassword = 'The two passwords do not match.'
   }
+  if (!acceptRules.value) {
+    errors.acceptRules = 'Please agree to the community rules to continue.'
+  }
   return errors
 }
 
@@ -83,7 +88,7 @@ async function submit() {
 
   submitting.value = true
   try {
-    await auth.acceptInvitation(token.value, fullName.value.trim(), password.value)
+    await auth.acceptInvitation(token.value, fullName.value.trim(), password.value, acceptRules.value)
     await router.replace({ name: ROLE_HOME[auth.role] })
   } catch (error) {
     if (error instanceof ApiError) {
@@ -252,6 +257,28 @@ async function submit() {
               <input v-model="showPassword" type="checkbox" class="size-5 accent-navy-900" />
               Show passwords
             </label>
+
+            <section aria-labelledby="rules-heading" class="rounded-xl border border-line bg-app-bg p-4">
+              <h2 id="rules-heading" class="text-[13px] font-bold uppercase tracking-[1px] text-muted">
+                Community rules
+              </h2>
+              <ul class="mt-2 list-disc space-y-2 pl-5 text-sm text-navy-900">
+                <li v-for="rule in RULES_BY_ROLE[invitation.role] ?? []" :key="rule">{{ rule }}</li>
+              </ul>
+              <label class="mt-3 flex min-h-11 items-start gap-3 text-sm font-semibold text-navy-900">
+                <input
+                  v-model="acceptRules"
+                  type="checkbox"
+                  class="mt-0.5 size-5 shrink-0 accent-navy-900"
+                  :aria-invalid="fieldErrors.acceptRules ? 'true' : 'false'"
+                  :aria-describedby="fieldErrors.acceptRules ? 'acceptRules-error' : undefined"
+                />
+                I agree to these rules.
+              </label>
+              <p v-if="fieldErrors.acceptRules" id="acceptRules-error" class="mt-1 text-sm text-red-700">
+                {{ fieldErrors.acceptRules }}
+              </p>
+            </section>
 
             <button
               type="submit"

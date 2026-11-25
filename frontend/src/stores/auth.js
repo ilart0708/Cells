@@ -51,8 +51,8 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /** Accepting an invitation creates the account and logs the person in. */
-  async function acceptInvitation(token, fullName, password) {
-    await applySession(await invitationsApi.acceptInvitation(token, fullName, password))
+  async function acceptInvitation(token, fullName, password, acceptRules) {
+    await applySession(await invitationsApi.acceptInvitation(token, fullName, password, acceptRules))
   }
 
   // Many requests can hit a 401 at the same moment. They all share ONE refresh call,
