@@ -1,6 +1,6 @@
 # Google Play Console answers for CELLS
 
-Draft answers, written from the code and the privacy policy as of 24 Nov 2026. Re-check each one against the Play Console
+Draft answers, written from the code and the privacy policy as of 25 Nov 2026. Re-check each one against the Play Console
 wording when you fill it in, because Google changes its forms. Nothing here has been submitted.
 
 ## Before you start
@@ -28,10 +28,13 @@ For cell group leaders
 - Set the participation order and share a passage with a learning level
 - Give a member a day off when they cannot take part
 - Optionally add a group summary or a personal reflection
+- Review reported answers and keep or remove them
 
 For pastors and administrators
 - See participation statistics for leaders and rooms
 - Pastors see statistics, not members' written answers
+
+Safe and respectful: members can report an answer, and the room's leader decides whether to keep it or remove it. The person who reported is never shown.
 
 CELLS is by invitation only: your leader, pastor or church administrator sends you a link to join. EXP shows that you took part. It is not a measure of faith and there is no public leaderboard.
 
@@ -39,7 +42,9 @@ Grow Together. Share the Word. Build a Stronger Community.
 
 - **Category:** Lifestyle (or Books & Reference). **Tags:** religion/spirituality.
 - **Contact email / website:** use the address in `frontend/src/constants/contact.js`; website `https://cells-alliance.netlify.app`.
-- **Graphics needed:** icon 512x512, feature graphic 1024x500, at least 2 phone screenshots (take them from the real app, one per role).
+- **Graphics (made 25 Nov 2026):** icon `app-icon-512x512.png`, feature graphic `feature-graphic-1024x500.png`, and 8 phone screenshots at 1080x2100
+  (1 to 4 member screens, 5 to 8 leader screens, ending with Reported answers). Upload them in that order; the first two show most in the listing.
+  Screenshots come from a test room, so the names Hazel and Clark appear in them.
 
 ## App access (reviewers cannot self-register)
 Accounts are created only from an invitation, so give Google test logins:
@@ -51,15 +56,22 @@ Accounts are created only from an invitation, so give Google test logins:
 Collected, encrypted in transit (HTTPS), user can request deletion (in app, and on the web page above). No data sold. Service
 providers (hosting, database, Firebase push) process data for you and are not "sharing" under Google's definition.
 
-| Data type | Collected | Purpose | Optional? |
+| Data type (Play Console name) | Collected | Purpose | Optional? |
 | --- | --- | --- | --- |
-| Name | Yes | App functionality, account management | No |
-| Email address | Yes | App functionality, account management | No |
-| User IDs (account id) | Yes | App functionality | No |
-| Other in-app content (written answers, summaries, reflections) | Yes | App functionality | Members write answers as part of the app |
+| Personal info > Name | Yes | App functionality, account management | No |
+| Personal info > Email address | Yes | App functionality, account management | No |
+| Personal info > User IDs (account id) | Yes | App functionality | No |
+| App activity > Other user-generated content (written answers, leader summaries and reflections, report reasons and notes) | Yes | App functionality | Members write answers as part of the app; report notes are optional |
 | Device or other IDs (push token) | Yes | App functionality (notifications) | Yes, only if notifications are allowed |
-| IP address (brief, for sign-in rate limiting) | Treat as collected | Security | No |
+| IP address (held briefly in memory for sign-in rate limiting; see the privacy policy) | Treat as collected | Security | No |
 
+Judgement call for you: written answers are Bible reflections, so they can reveal religious beliefs. Playing it safe means also ticking
+**Personal info > Political or religious beliefs** (collected, app functionality, not shared). Declaring too much is not penalised;
+declaring too little can be. The privacy policy needs no change either way.
+
+Before you submit: make sure `APP_RATE_LIMIT_DEBUG` is off on Render. With it on, visitor IP addresses are written to the server log, which the privacy policy does not describe.
+
+Shared with third parties: No. Firebase Cloud Messaging only delivers the push token's notifications for you, so it counts as a service provider.
 Not collected: location, contacts, photos, files, audio, health, financial info, browsing history, advertising ID, analytics.
 
 Other answers: "Is all data encrypted in transit?" Yes. "Do you provide a way to request data deletion?" Yes, with both URLs above.
@@ -76,10 +88,16 @@ the questionnaire returns.
 
 ## User-generated content (report and removal)
 Members' written answers are visible to the rest of their group, so Google's user-generated-content policy applies.
-CELLS has an in-app way to report an answer (Report button on every other member's answer, with a reason) and the room's
-leader can keep it or remove its text from Room > Reports. The reporter is never shown. Use this in the review notes and
-in the Play Console UGC question. Limits to be honest about: reports go to the room's leader (not to an administrator),
-and there is no per-user block.
+CELLS has an in-app way to report an answer (Report button on every other member's answer, with a reason and an optional note)
+and the room's leader can keep it or remove its text from Room > Reports. A removed answer shows "This answer was removed by the leader."
+and still counts for participation and EXP. The reporter is never shown. Use this in the review notes and in the Play Console UGC question.
+Reasons offered: Offensive or hateful, Harassment or bullying, Inappropriate or explicit, Spam or not related to the passage, Something else.
+Limits to be honest about:
+- Reports go to the room's leader, not to an administrator, and there is no per-user block.
+- Closed groups only: nobody can read a room's answers without an invitation, and a member sees others' answers only after sharing their own.
+- **Gap:** Google's UGC policy also expects user terms that forbid objectionable content, accepted before posting. CELLS has no terms
+  page or accept step yet. Adding a short "Community rules" text and an accept checkbox on the invitation page is the cheapest fix
+  if the review asks for it.
 
 ## Release checklist
 1. Create app in Play Console (name, default language, free).
