@@ -1,0 +1,55 @@
+# CELLS - Handoff status (last updated 26 November 2026)
+
+For anyone (or any Claude session, on any account) continuing this work. Read this first. The Roadmap, Product Concept and Design System Guide are the source of truth for product rules. A copy of this note also lives in the Claude Project "Cells" as `claude/CELLS - Handoff Status (26 Nov 2026).md`.
+
+**Rule for every session:** at the end of each piece of work, update this file (and the Project copy) with what changed, what is open and which branch holds it.
+
+## Stack and hosting
+- Frontend: Vue 3 + Vite on Netlify (https://cells-alliance.netlify.app). `frontend/netlify.toml` proxies `/api/*` to the backend. **Netlify auto-publish is OFF and the owner has no Netlify credits: the owner publishes the frontend by hand, in bulk.**
+- Backend: Spring Boot 4 / Java 21, PostgreSQL (Neon), Flyway, on Render (https://cells-d3m6.onrender.com, free tier, slow to wake).
+- Android app: Capacitor 8, `com.cells.app`, same Vue app (`npm run build:native`). After frontend changes run `npm run cap:sync` and rebuild.
+- Repo: github.com/ilart0708/Cells. A Claude session pushes feature or release branches only, never `main`; the owner opens and merges the PR.
+
+## Working rules the owner set
+- Base work on the Roadmap, Product Concept and Design System Guide.
+- Skip backend and frontend tests for now (repo CLAUDE.md).
+- Any new endpoint needs a Postman request (folder, then request, with a cURL in the description) in `docs/postman/cells.postman_collection.json`.
+- Never paste secrets into chats or Git.
+- Claude's sandbox has no network: the backend and frontend cannot be compiled or built there. Code is reviewed by hand. The owner's local build, Render deploy and Netlify build are the real checks. If a build fails, give the log to Claude and fix it on the same branch.
+- A Stop hook sometimes claims "unpushed commits". It has been wrong every time; verify with `git ls-remote --heads origin <branch>` against `git rev-parse HEAD`.
+- Screenshots for Play are done; the owner does not want them retaken.
+
+## Current state of work (26 Nov 2026)
+
+### Branch `release/self-registration-and-rules` (pushed, commit af51c84, NOT merged, NOT deployed)
+One combined branch from `main`, ready for one PR. It supersedes `feature/leader-self-registration` and `feature/rules-on-invitation` (older, can be deleted after merge).
+
+1. **Leader self-registration** (`POST /api/v1/auth/register-leader`, public, rate-limited):
+   - A leader creates their own group without an invitation: name, email, password, church name, pastor name (required, typed text, not an account), optional pastor email (admin only), and a required "I agree" to community rules.
+   - Always creates a NEW church (never joins one by name). The church starts "not verified". `churches` gains `self_registered`, `verified`, `pastor_name`, `pastor_email` (migration `V23__self_registered_churches.sql`; name uniqueness now only for admin-created churches).
+   - Limits while unverified: 3 active rooms, 30 members (pending member invitations count). See `church/UnverifiedLimits`.
+   - Admin: `PUT /api/v1/admin/churches/{id}/verification` and a Verify / Remove verification button on Church Management. Leader list marks "(not verified)". Leader and members see "Pastor: Name · not verified" under the room title.
+   - Deleting the last leader of a self-registered church also removes the typed pastor name and email.
+   - Public page `/register` ("Create your group"), linked from the login page.
+2. **Community rules on invitation accept:** the accept-invitation page shows role-specific rules (member, invited leader, pastor) with an agree checkbox and sends `acceptRules`. **The server treats `acceptRules` as optional on `/invitations/accept`** so the website currently live on Netlify (which does not send it) keeps working. Make it required again (`@AssertTrue` in `AcceptInvitationRequest`) only after the new frontend is published. Accounts that existed before this have not seen the rules.
+3. Privacy policy, delete-account page, `docs/play-store.md` and Postman were updated to match.
+
+**Deploy order when the owner is ready:** merge the PR, let Render deploy and check the log that Flyway applied V23, then publish the frontend on Netlify. Until Netlify is published only the new website pages (Create your group, rules checkbox, "not verified" label) are missing; nothing existing breaks. Not built or compiled by Claude: expect to fix small compile errors if the Render or local build complains.
+
+### Earlier work already merged
+Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening, privacy policy edits and reports text (PRs #37/#38), leader dashboard placeholder removed, Play Store answers in `docs/play-store.md`.
+
+## Google Play status
+- Done: privacy policy and delete-account pages, Data safety and store listing drafts (`docs/play-store.md`), graphics and 8 screenshots (delivered as a zip), tester invitation message.
+- Still to do: launcher icon (1024 px), splash, transparent notification icon; signed `.aab` (`docs/android-app.md`); create test accounts for Google's App access; start the closed test (12 testers opted in for 14 days; personal account created after 13 Nov 2023); then apply for production.
+- Before submitting: `APP_RATE_LIMIT_DEBUG` must be off on Render.
+
+## Open items
+1. Merge `release/self-registration-and-rules`, deploy Render, then publish Netlify (owner). Afterwards make `acceptRules` required on the server.
+2. Rate limiter: set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render, delete `APP_RATE_LIMIT_DEBUG`, re-test; decide on the signed Netlify proxy (website path) before production. The limiter was not effective in the 24 Nov test (Cloudflare edge address changes per request).
+3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
+4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.
+5. Push retry can duplicate a notification on a second phone when one phone's send fails.
+6. One moderate Dependabot alert on the default branch.
+7. Self-registered groups: no real pastor verification yet (needs working email). Reports go to the room's leader only; there is no per-user block.
+8. Roadmap Phase 10 (audit log, CI, further hardening) not started beyond the above.
