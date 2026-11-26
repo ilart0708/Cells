@@ -97,7 +97,7 @@ Limits to be honest about:
 - Closed groups only: nobody can read a room's answers without an invitation, and a member sees others' answers only after sharing their own.
 - Everyone agrees to short community rules before an account is created, on the page where they join: members, invited leaders and
   pastors on the accept-invitation page (rules shown for their role), and leaders who create their own group on "Create your group"
-  (no hateful, harassing or sexual content; leaders review reports). The server rejects sign-up without the agreement.
+  (no hateful, harassing or sexual content; leaders review reports). Leaders who create their own group are enforced by the server; for invitations the server accepts a missing value so an older website keeps working, and the page itself always asks.
 - An unverified (self-registered) group is limited to 3 rooms and 30 members until an administrator verifies it.
 - Accounts created before this change did not see the rules. If the review asks, say new accounts agree at sign-up; there is no
   re-prompt for older accounts.

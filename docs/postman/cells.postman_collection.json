@@ -321,7 +321,7 @@
                 "accept"
               ]
             },
-            "description": "Native mode: creates the account and returns the session with refreshToken in the body.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/invitations/accept\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\",\n  \"acceptRules\": true\n}'\n```",
+            "description": "Native mode: creates the account and returns the session with refreshToken in the body. acceptRules is optional on the server for now.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/invitations/accept\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\",\n  \"acceptRules\": true\n}'\n```",
             "auth": {
               "type": "noauth"
             },
