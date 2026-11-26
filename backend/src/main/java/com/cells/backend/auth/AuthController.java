@@ -19,10 +19,22 @@ public class AuthController {
 
     private final AuthService authService;
     private final SessionResponseFactory sessions;
+    private final LeaderRegistrationService registrationService;
 
-    public AuthController(AuthService authService, SessionResponseFactory sessions) {
+    public AuthController(AuthService authService, SessionResponseFactory sessions,
+                          LeaderRegistrationService registrationService) {
         this.authService = authService;
         this.sessions = sessions;
+        this.registrationService = registrationService;
+    }
+
+    /** A leader signs up without an invitation. Public and rate-limited. */
+    @PostMapping("/register-leader")
+    public ResponseEntity<?> registerLeader(
+            @RequestHeader(name = SessionResponseFactory.CLIENT_HEADER, required = false) String clientType,
+            @RequestHeader(name = SessionResponseFactory.ORIGIN_HEADER, required = false) String origin,
+            @Valid @RequestBody RegisterLeaderRequest request) {
+        return sessions.create(registrationService.register(request), clientType, origin);
     }
 
     @PostMapping("/login")

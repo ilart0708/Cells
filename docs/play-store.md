@@ -36,7 +36,7 @@ For pastors and administrators
 
 Safe and respectful: members can report an answer, and the room's leader decides whether to keep it or remove it. The person who reported is never shown.
 
-CELLS is by invitation only: your leader, pastor or church administrator sends you a link to join. EXP shows that you took part. It is not a measure of faith and there is no public leaderboard.
+Members join by invitation from their leader. Leaders join by invitation from their pastor or church administrator, or create their own group by naming their church and pastor; a group created this way is marked "not verified" until an administrator verifies it. EXP shows that you took part. It is not a measure of faith and there is no public leaderboard.
 
 Grow Together. Share the Word. Build a Stronger Community.
 
@@ -46,8 +46,8 @@ Grow Together. Share the Word. Build a Stronger Community.
   (1 to 4 member screens, 5 to 8 leader screens, ending with Reported answers). Upload them in that order; the first two show most in the listing.
   Screenshots come from a test room, so the names Hazel and Clark appear in them.
 
-## App access (reviewers cannot self-register)
-Accounts are created only from an invitation, so give Google test logins:
+## App access
+Members join only from an invitation, and a leader can sign up themselves ("Create your group"), so give Google test logins:
 - Create on the live system: one church, one **member** and one **leader** account, one active room with both in it, and a devotion for today.
 - Enter the emails and passwords in Play Console > App content > App access. Do not reuse a real person's account.
 - Keep the member first in the participation order so the reviewer can submit.
@@ -95,9 +95,14 @@ Reasons offered: Offensive or hateful, Harassment or bullying, Inappropriate or 
 Limits to be honest about:
 - Reports go to the room's leader, not to an administrator, and there is no per-user block.
 - Closed groups only: nobody can read a room's answers without an invitation, and a member sees others' answers only after sharing their own.
-- **Gap:** Google's UGC policy also expects user terms that forbid objectionable content, accepted before posting. CELLS has no terms
-  page or accept step yet. Adding a short "Community rules" text and an accept checkbox on the invitation page is the cheapest fix
-  if the review asks for it.
+- Everyone agrees to short community rules before an account is created, on the page where they join: members, invited leaders and
+  pastors on the accept-invitation page (rules shown for their role), and leaders who create their own group on "Create your group"
+  (no hateful, harassing or sexual content; leaders review reports). Leaders who create their own group are enforced by the server; for invitations the server accepts a missing value so an older website keeps working, and the page itself always asks.
+- An unverified (self-registered) group is limited to 3 rooms and 30 members until an administrator verifies it.
+- Accounts created before this change did not see the rules. If the review asks, say new accounts agree at sign-up; there is no
+  re-prompt for older accounts.
+- The typed pastor name and optional pastor email of a self-registered group belong to a third person. They are only used to show who
+  the group answers to; the email is visible to administrators only. No new Data safety category is needed (name and email are already declared).
 
 ## Release checklist
 1. Create app in Play Console (name, default language, free).

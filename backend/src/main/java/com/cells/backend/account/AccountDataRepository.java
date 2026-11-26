@@ -34,9 +34,19 @@ public class AccountDataRepository {
         jdbc.update("delete from devotion_summaries where created_by = ?", userId);
     }
 
-    /** A leader who is gone no longer belongs to a pastor's list. */
+    /**
+     * A leader who is gone no longer belongs to a pastor's list. If the leader registered the church themselves and
+     * is its last leader, the pastor's name and email they typed (a third person's details) are removed too.
+     */
     public void deleteLeaderAssignment(Long leaderId) {
         jdbc.update("delete from pastor_leaders where leader_id = ?", leaderId);
+        jdbc.update("""
+                update churches set pastor_name = null, pastor_email = null
+                where self_registered
+                  and id in (select church_id from cell_group_leaders where user_id = ?)
+                  and not exists (select 1 from cell_group_leaders other
+                                  where other.church_id = churches.id and other.user_id <> ?)
+                """, leaderId, leaderId);
     }
 
     public void deleteSignInAndDeviceData(Long userId) {

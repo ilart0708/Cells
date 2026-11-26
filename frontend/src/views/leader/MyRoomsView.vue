@@ -144,7 +144,7 @@ async function confirmStatus() {
         <ul class="divide-y divide-line">
           <li v-for="room in rooms.items" :key="room.id" class="flex flex-wrap items-center gap-3 px-4 py-4">
             <div class="min-w-0 flex-1">
-              <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" />
+              <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified" />
               <p class="mt-1 text-sm text-muted">
                 {{ memberLabel(room.memberCount) }} ·
                 <template v-if="room.status === 'ARCHIVED'">Archived {{ formatDate(room.archivedAt) }}</template>

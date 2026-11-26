@@ -17,7 +17,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             select new com.cells.backend.room.RoomResponse(
                 r.id, r.name, r.status, c.id, c.name, u.id, u.fullName,
                 (select count(m) from RoomMember m where m.roomId = r.id and m.removedAt is null),
-                r.createdAt, r.archivedAt)
+                r.createdAt, r.archivedAt, c.pastorName, c.verified)
             """;
 
     String FROM_JOINS = """
@@ -46,6 +46,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Room r where r.id = :id and r.leaderId = :leaderId")
     Optional<Room> findOwnForUpdate(@Param("id") Long id, @Param("leaderId") Long leaderId);
+
+    long countByLeaderIdAndStatus(Long leaderId, RoomStatus status);
 
     Optional<Room> findByLeaderIdAndStatusAndNameIgnoreCase(Long leaderId, RoomStatus status, String name);
 

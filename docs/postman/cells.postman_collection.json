@@ -44,6 +44,10 @@
     {
       "key": "reportId",
       "value": "1"
+    },
+    {
+      "key": "churchId",
+      "value": "1"
     }
   ],
   "item": [
@@ -317,13 +321,120 @@
                 "accept"
               ]
             },
-            "description": "Native mode: creates the account and returns the session with refreshToken in the body.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/invitations/accept\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\"\n}'\n```",
+            "description": "Native mode: creates the account and returns the session with refreshToken in the body. acceptRules is optional on the server for now.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/invitations/accept\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\",\n  \"acceptRules\": true\n}'\n```",
             "auth": {
               "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\"\n}",
+              "raw": "{\n  \"token\": \"invitation-token-from-the-email-link\",\n  \"fullName\": \"New Member\",\n  \"password\": \"a-strong-password\",\n  \"acceptRules\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b && b.accessToken) { pm.collectionVariables.set('accessToken', b.accessToken); }",
+                  "if (b && b.refreshToken) { pm.collectionVariables.set('refreshToken', b.refreshToken); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register a leader (no invitation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register-leader",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register-leader"
+              ]
+            },
+            "description": "Public. A leader signs up without an invitation. Creates a NEW church (never joins an existing one by name) that stays 'not verified' until an administrator verifies it, plus a LEADER account, and logs the person in. pastorName is typed text, not an account. pastorEmail is optional and only the administrator sees it. acceptRules must be true. Until verified the church is limited to 3 active rooms and 30 members. Rate-limited like login (429 when too many requests). 409 if the email already has an account. Returns an access token (stored automatically) and sets the refresh cookie.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/register-leader\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"fullName\": \"Grace Leader\",\n  \"email\": \"grace.leader@example.com\",\n  \"password\": \"a-strong-password-123\",\n  \"churchName\": \"Grace Fellowship\",\n  \"pastorName\": \"Pastor Daniel Cruz\",\n  \"pastorEmail\": \"pastor@example.com\",\n  \"acceptRules\": true\n}'\n```",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Grace Leader\",\n  \"email\": \"grace.leader@example.com\",\n  \"password\": \"a-strong-password-123\",\n  \"churchName\": \"Grace Fellowship\",\n  \"pastorName\": \"Pastor Daniel Cruz\",\n  \"pastorEmail\": \"pastor@example.com\",\n  \"acceptRules\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b && b.accessToken) { pm.collectionVariables.set('accessToken', b.accessToken); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register a leader (native app)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Client-Type",
+                "value": "native"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register-leader",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register-leader"
+              ]
+            },
+            "description": "Public. A leader signs up without an invitation. Creates a NEW church (never joins an existing one by name) that stays 'not verified' until an administrator verifies it, plus a LEADER account, and logs the person in. pastorName is typed text, not an account. pastorEmail is optional and only the administrator sees it. acceptRules must be true. Until verified the church is limited to 3 active rooms and 30 members. Rate-limited like login (429 when too many requests). 409 if the email already has an account. Native mode: the session comes back with refreshToken in the body.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/auth/register-leader\" \\\n  -H \"Accept: application/json\" \\\n  -H \"X-Client-Type: native\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"fullName\": \"Grace Leader\",\n  \"email\": \"grace.leader@example.com\",\n  \"password\": \"a-strong-password-123\",\n  \"churchName\": \"Grace Fellowship\",\n  \"pastorName\": \"Pastor Daniel Cruz\",\n  \"pastorEmail\": \"pastor@example.com\",\n  \"acceptRules\": true\n}'\n```",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Grace Leader\",\n  \"email\": \"grace.leader@example.com\",\n  \"password\": \"a-strong-password-123\",\n  \"churchName\": \"Grace Fellowship\",\n  \"pastorName\": \"Pastor Daniel Cruz\",\n  \"pastorEmail\": \"pastor@example.com\",\n  \"acceptRules\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1103,6 +1214,59 @@
               ]
             },
             "description": "Log in as the room's LEADER. Replaces the answer's text with 'This answer was removed by the leader.' and closes every open report about it. Participation and EXP are unchanged. Returns 204. Cannot be undone.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/leader/rooms/{{roomId}}/reports/{{reportId}}/remove-answer\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Churches (admin)",
+      "item": [
+        {
+          "name": "Admin verifies a church",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/churches/{{churchId}}/verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "churches",
+                "{{churchId}}",
+                "verification"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Log in as the ADMINISTRATOR. Marks a church as verified (true) or not verified (false). A verified church has no limit on rooms and members. Works for any church; the list at GET /admin/churches shows selfRegistered, verified, pastorName and pastorEmail.\n\ncURL:\n\n```\ncurl -X PUT \"{{baseUrl}}/admin/churches/{{churchId}}/verification\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -d '{\n  \"verified\": true\n}'\n```",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verified\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         }
       ]

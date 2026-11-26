@@ -1,5 +1,6 @@
 package com.cells.backend.room;
 
+import com.cells.backend.church.UnverifiedLimits;
 import com.cells.backend.common.BusinessRuleException;
 import com.cells.backend.common.DuplicateResourceException;
 import com.cells.backend.common.PageResponse;
@@ -80,6 +81,11 @@ public class RoomMemberService {
 
         if (roomMemberRepository.existsByRoomIdAndMemberIdAndRemovedAtIsNull(roomId, memberId)) {
             throw new DuplicateResourceException("This member is already in the room.");
+        }
+
+        if (!room.getChurch().isVerified()
+                && roomMemberRepository.countActiveMembersOfChurch(room.getChurch().getId()) >= UnverifiedLimits.MAX_MEMBERS) {
+            throw new BusinessRuleException(UnverifiedLimits.membersMessage());
         }
 
         int number = roomMemberRepository.maxActiveNumber(roomId) + 1;

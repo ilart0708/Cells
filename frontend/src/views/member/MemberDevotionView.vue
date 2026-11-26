@@ -61,7 +61,7 @@ watch(() => [props.roomId, props.devotionId], load)
         <RoomTitle
           :church-name="room.churchName"
           :room-name="room.roomName"
-          :leader-name="room.leaderName"
+          :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified"
           :level="2"
         />
       </header>

@@ -265,6 +265,12 @@ const router = createRouter({
       meta: { public: true },
     },
     {
+      path: '/register',
+      name: 'register',
+      component: () => import('../views/RegisterLeaderView.vue'),
+      meta: { public: true },
+    },
+    {
       path: '/accept-invitation',
       name: 'accept-invitation',
       component: () => import('../views/AcceptInvitationView.vue'),

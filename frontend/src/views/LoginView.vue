@@ -119,7 +119,17 @@ async function submit() {
         </button>
       </form>
 
-      <p class="mt-6 text-center">
+      <p class="mt-6 text-center text-sm text-on-navy-soft">
+        A leader whose church hasn’t invited you yet?
+        <RouterLink
+          :to="{ name: 'register' }"
+          class="inline-flex min-h-11 items-center font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500"
+        >
+          Create your group
+        </RouterLink>
+      </p>
+
+      <p class="mt-2 text-center">
         <RouterLink
           :to="{ name: 'privacy' }"
           class="inline-flex min-h-11 items-center text-sm font-semibold text-on-navy-soft underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500"

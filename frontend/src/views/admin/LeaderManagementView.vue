@@ -46,7 +46,7 @@ const toggle = reactive(
             <div class="min-w-0 flex-1">
               <p class="truncate font-semibold text-navy-900">{{ leader.fullName }}</p>
               <p class="truncate text-sm text-muted">{{ leader.email }}</p>
-              <p class="truncate text-sm text-muted">{{ leader.churchName }} · Pastor {{ leader.pastorName }}</p>
+              <p class="truncate text-sm text-muted">{{ leader.churchName }} · Pastor {{ leader.pastorName }}<span v-if="!leader.churchVerified"> (not verified)</span></p>
             </div>
             <StatusPill :status="leader.status" />
             <button type="button" :class="btnOutline" @click="toggle.ask(leader)">

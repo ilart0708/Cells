@@ -18,6 +18,12 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
 
     List<RoomMember> findByMemberIdAndRemovedAtIsNull(Long memberId);
 
+    // People in the active rooms of one church (used for the limit of an unverified church).
+    @Query("select count(distinct rm.memberId) from RoomMember rm join Room r on r.id = rm.roomId "
+            + "where r.church.id = :churchId and r.status = com.cells.backend.room.RoomStatus.ACTIVE "
+            + "and rm.removedAt is null")
+    long countActiveMembersOfChurch(@Param("churchId") Long churchId);
+
     @Query("select coalesce(max(rm.participationNumber), 0) from RoomMember rm "
             + "where rm.roomId = :roomId and rm.removedAt is null")
     int maxActiveNumber(@Param("roomId") Long roomId);
@@ -50,7 +56,7 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
             select new com.cells.backend.room.MemberRoomResponse(
                 r.id, r.name, c.id, c.name, lu.fullName, rm.participationNumber,
                 (select count(m) from RoomMember m where m.roomId = r.id and m.removedAt is null),
-                rm.joinedAt)
+                rm.joinedAt, c.pastorName, c.verified)
             from RoomMember rm
             join Room r on r.id = rm.roomId
             join r.church c

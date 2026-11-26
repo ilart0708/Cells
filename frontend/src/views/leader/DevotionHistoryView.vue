@@ -128,7 +128,7 @@ watch(
       <header class="flex flex-wrap items-start justify-between gap-3">
         <div class="min-w-0 space-y-2">
           <h1 class="text-2xl font-bold text-navy-900">Devotions</h1>
-          <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :level="2" />
+          <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified" :level="2" />
         </div>
         <RouterLink v-if="canChange" :to="{ name: 'leader-devotion-new', params: { roomId } }" :class="btnPrimary">
           Create devotion

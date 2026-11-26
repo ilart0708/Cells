@@ -45,9 +45,14 @@ export const useAuthStore = defineStore('auth', () => {
     await applySession(await authApi.login(email, password))
   }
 
+  /** A leader signing up without an invitation: creates the account and its (unverified) church, and logs in. */
+  async function registerLeader(details) {
+    await applySession(await authApi.registerLeader(details))
+  }
+
   /** Accepting an invitation creates the account and logs the person in. */
-  async function acceptInvitation(token, fullName, password) {
-    await applySession(await invitationsApi.acceptInvitation(token, fullName, password))
+  async function acceptInvitation(token, fullName, password, acceptRules) {
+    await applySession(await invitationsApi.acceptInvitation(token, fullName, password, acceptRules))
   }
 
   // Many requests can hit a 401 at the same moment. They all share ONE refresh call,
@@ -110,6 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
     role,
     login,
     acceptInvitation,
+    registerLeader,
     logout,
     refresh,
     restoreSession,

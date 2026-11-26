@@ -181,7 +181,7 @@ watch(() => props.roomId, loadAll)
       <header class="flex flex-wrap items-start justify-between gap-3">
         <div class="min-w-0 space-y-2">
           <h1 class="text-2xl font-bold text-navy-900">Today</h1>
-          <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :level="2" />
+          <RoomTitle :church-name="room.churchName" :room-name="room.name" :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified" :level="2" />
           <p class="text-sm text-muted">{{ formatDay(board.today) }}</p>
         </div>
         <button type="button" :class="btnOutline" :disabled="refreshing" @click="fetchBoard('manual')">

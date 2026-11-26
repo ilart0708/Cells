@@ -66,7 +66,7 @@ function streakText(count) {
         <ul v-else class="space-y-4">
           <li v-for="room in data.rooms" :key="room.roomId" class="space-y-3 rounded-[18px] border border-line bg-white p-4">
             <div class="flex flex-wrap items-start justify-between gap-2">
-              <RoomTitle :church-name="room.churchName" :room-name="room.roomName" :leader-name="room.leaderName" :level="3" />
+              <RoomTitle :church-name="room.churchName" :room-name="room.roomName" :leader-name="room.leaderName" :pastor-name="room.pastorName" :church-verified="room.churchVerified" :level="3" />
               <div class="flex flex-wrap gap-2">
                 <StatusPill v-if="room.roomStatus === 'ARCHIVED'" status="ARCHIVED" />
                 <span v-if="!room.current" class="rounded-full bg-track px-3 py-1 text-xs font-bold text-navy-900">

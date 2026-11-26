@@ -4,5 +4,5 @@ import { rawRequest } from './http'
 export const previewInvitation = (token) =>
   rawRequest('/invitations/preview', { method: 'POST', body: { token } })
 
-export const acceptInvitation = (token, fullName, password) =>
-  rawRequest('/invitations/accept', { method: 'POST', body: { token, fullName, password } })
+export const acceptInvitation = (token, fullName, password, acceptRules) =>
+  rawRequest('/invitations/accept', { method: 'POST', body: { token, fullName, password, acceptRules } })

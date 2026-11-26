@@ -5,6 +5,7 @@ import com.cells.backend.auth.AuthService;
 import com.cells.backend.church.Church;
 import com.cells.backend.church.ChurchRepository;
 import com.cells.backend.church.ChurchStatus;
+import com.cells.backend.church.UnverifiedLimits;
 import com.cells.backend.common.BusinessRuleException;
 import com.cells.backend.common.DuplicateResourceException;
 import com.cells.backend.common.InvalidInvitationException;
@@ -22,6 +23,7 @@ import com.cells.backend.pastor.Pastor;
 import com.cells.backend.pastor.PastorRepository;
 import com.cells.backend.room.Room;
 import com.cells.backend.room.RoomMemberService;
+import com.cells.backend.room.RoomMemberRepository;
 import com.cells.backend.room.RoomRepository;
 import com.cells.backend.room.RoomStatus;
 import com.cells.backend.user.Role;
@@ -50,6 +52,7 @@ public class InvitationService {
     private final MemberRepository memberRepository;
     private final RoomRepository roomRepository;
     private final RoomMemberService roomMemberService;
+    private final RoomMemberRepository roomMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final InvitationProperties properties;
@@ -64,6 +67,7 @@ public class InvitationService {
                              MemberRepository memberRepository,
                              RoomRepository roomRepository,
                              RoomMemberService roomMemberService,
+                             RoomMemberRepository roomMemberRepository,
                              PasswordEncoder passwordEncoder,
                              AuthService authService,
                              InvitationProperties properties,
@@ -77,6 +81,7 @@ public class InvitationService {
         this.memberRepository = memberRepository;
         this.roomRepository = roomRepository;
         this.roomMemberService = roomMemberService;
+        this.roomMemberRepository = roomMemberRepository;
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
         this.properties = properties;
@@ -106,6 +111,15 @@ public class InvitationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found."));
         if (room.getStatus() != RoomStatus.ACTIVE) {
             throw new BusinessRuleException("Archived rooms cannot get new members.");
+        }
+
+        if (!room.getChurch().isVerified()) {
+            // People already in rooms plus invitations that can still be accepted.
+            long committed = roomMemberRepository.countActiveMembersOfChurch(room.getChurch().getId())
+                    + invitationRepository.countPendingMemberInvitations(room.getChurch().getId(), Instant.now());
+            if (committed >= UnverifiedLimits.MAX_MEMBERS) {
+                throw new BusinessRuleException(UnverifiedLimits.membersMessage());
+            }
         }
 
         String email = request.email().trim().toLowerCase();

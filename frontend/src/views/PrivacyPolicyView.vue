@@ -21,6 +21,7 @@ const sections = [
       'Your church, your cell group room and your place in its participation order.',
       'What you write: your understanding of each passage, and the summaries or reflections a leader writes.',
       'Participation records: whether you submitted on a given day, a day off granted by your leader, and the experience points you earned.',
+      'If you register a group yourself without an invitation: your church’s name, your pastor’s name and, if you choose to give it, your pastor’s email address. This shows who the group answers to. We do not contact your pastor today.',
       'Reports: if you report another member’s answer, we store the reason you chose, your optional note, and which answer it was about.',
       'If you turn on notifications: a device token, so your phone can receive reminders.',
       'Basic technical data, such as your network address, used to block repeated failed sign-in attempts.',
@@ -46,6 +47,7 @@ const sections = [
     list: [
       'Your written understanding is shown to your cell group: your leader and the members of your room.',
       'If an answer is reported, only the leader of that room sees the answer, the reason and the note (if one was written). The leader never sees who made the report. The leader can keep the answer or remove it. A removed answer’s text is replaced with “This answer was removed by the leader.” and still counts for participation and experience points.',
+      'If a leader registered the group without an invitation, the pastor’s name they typed is shown with a “not verified” note to the members of that group and to administrators. A pastor’s email address, if given, is shown only to administrators.',
       'Pastors see participation statistics for their leaders and rooms, not individual written reflections.',
       'Platform administrators manage accounts and can see participation records.',
       'We do not share your data with advertisers or other companies. We use service providers to run the app (hosting, database and, if turned on, notifications and email). They process data for us and may not use it for their own purposes.',
@@ -67,7 +69,7 @@ const sections = [
   {
     title: 'Your choices and deleting your account',
     paragraphs: [
-      `You can delete your account yourself at any time: sign in, open Account (under More on a phone), and choose Delete my account. If you cannot sign in, email ${CONTACT_EMAIL} from the address on your account with the subject “Delete my CELLS account”. Deleting removes your name, email, password, what you wrote, your experience points, the reports you made and the reports about your answers, your notifications and your phone registrations. A leader must archive all their rooms before deleting their account. Participation counts in your group's history stay, without your name. Details: /delete-account.`,
+      `You can delete your account yourself at any time: sign in, open Account (under More on a phone), and choose Delete my account. If you cannot sign in, email ${CONTACT_EMAIL} from the address on your account with the subject “Delete my CELLS account”. Deleting removes your name, email, password, what you wrote, your experience points, the reports you made and the reports about your answers, your notifications and your phone registrations. If you registered your group yourself and you are its last leader, the pastor’s name and email you typed are removed too. A leader must archive all their rooms before deleting their account. Participation counts in your group's history stay, without your name. Details: /delete-account.`,
       'You can also ask us for a copy of your data, or to correct it, at the same address.',
     ],
   },

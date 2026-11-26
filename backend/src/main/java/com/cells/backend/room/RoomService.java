@@ -2,6 +2,7 @@ package com.cells.backend.room;
 
 import com.cells.backend.church.Church;
 import com.cells.backend.church.ChurchStatus;
+import com.cells.backend.church.UnverifiedLimits;
 import com.cells.backend.common.BusinessRuleException;
 import com.cells.backend.common.DuplicateResourceException;
 import com.cells.backend.common.PageResponse;
@@ -35,6 +36,11 @@ public class RoomService {
         Church church = leader.getChurch();
         if (church.getStatus() != ChurchStatus.ACTIVE) {
             throw new BusinessRuleException("Your church is not active.");
+        }
+
+        if (!church.isVerified()
+                && roomRepository.countByLeaderIdAndStatus(leaderId, RoomStatus.ACTIVE) >= UnverifiedLimits.MAX_ROOMS) {
+            throw new BusinessRuleException(UnverifiedLimits.roomsMessage());
         }
 
         String name = request.name().trim();
@@ -86,6 +92,10 @@ public class RoomService {
                     leaderId, RoomStatus.ACTIVE, room.getName(), roomId)) {
                 throw new DuplicateResourceException(
                         "Another active room already has this name. Rename that room first, then restore this one.");
+            }
+            if (!room.getChurch().isVerified()
+                    && roomRepository.countByLeaderIdAndStatus(leaderId, RoomStatus.ACTIVE) >= UnverifiedLimits.MAX_ROOMS) {
+                throw new BusinessRuleException(UnverifiedLimits.roomsMessage());
             }
             room.restore();
         }

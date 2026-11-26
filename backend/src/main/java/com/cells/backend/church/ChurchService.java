@@ -23,7 +23,7 @@ public class ChurchService {
     @Transactional
     public ChurchResponse create(ChurchRequest request) {
         String name = request.name().trim();
-        if (churchRepository.existsByNameIgnoreCase(name)) {
+        if (churchRepository.existsByNameIgnoreCaseAndSelfRegisteredFalse(name)) {
             throw new DuplicateResourceException("A church with this name already exists.");
         }
         return ChurchResponse.from(churchRepository.save(new Church(name)));
@@ -50,10 +50,17 @@ public class ChurchService {
     public ChurchResponse rename(Long id, ChurchRequest request) {
         Church church = find(id);
         String name = request.name().trim();
-        if (churchRepository.existsByNameIgnoreCaseAndIdNot(name, id)) {
+        if (churchRepository.existsByNameIgnoreCaseAndSelfRegisteredFalseAndIdNot(name, id)) {
             throw new DuplicateResourceException("A church with this name already exists.");
         }
         church.rename(name);
+        return ChurchResponse.from(church);
+    }
+
+    @Transactional
+    public ChurchResponse setVerified(Long id, boolean verified) {
+        Church church = find(id);
+        church.setVerified(verified);
         return ChurchResponse.from(church);
     }
 
