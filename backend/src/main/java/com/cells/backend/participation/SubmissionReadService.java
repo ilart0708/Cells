@@ -6,6 +6,8 @@ import com.cells.backend.devotion.DevotionRepository;
 import com.cells.backend.devotion.DevotionResponse;
 import com.cells.backend.devotion.DevotionStatus;
 import com.cells.backend.devotion.MemberDevotionResponse;
+import com.cells.backend.reaction.ReactionService;
+import com.cells.backend.reaction.ReactionSummary;
 import com.cells.backend.room.RoomMemberRepository;
 import com.cells.backend.room.RoomRepository;
 import com.cells.backend.room.RoomStatus;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /** Reading the written answers. Only the room's leader and its members ever get here. */
 @Service
@@ -28,6 +31,7 @@ public class SubmissionReadService {
     private final DevotionRepository devotionRepository;
     private final DevotionSubmissionRepository submissionRepository;
     private final DailyExemptionRepository exemptionRepository;
+    private final ReactionService reactionService;
     private final Clock clock;
 
     public SubmissionReadService(RoomRepository roomRepository,
@@ -35,12 +39,14 @@ public class SubmissionReadService {
                                  DevotionRepository devotionRepository,
                                  DevotionSubmissionRepository submissionRepository,
                                  DailyExemptionRepository exemptionRepository,
+                                 ReactionService reactionService,
                                  Clock clock) {
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
         this.devotionRepository = devotionRepository;
         this.submissionRepository = submissionRepository;
         this.exemptionRepository = exemptionRepository;
+        this.reactionService = reactionService;
         this.clock = clock;
     }
 
@@ -52,7 +58,12 @@ public class SubmissionReadService {
         Devotion devotion = devotionRepository.findByIdAndRoomId(devotionId, roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Devotion not found."));
 
-        List<LeaderSubmissionResponse> answers = submissionRepository.findForDevotion(devotionId);
+        List<LeaderSubmissionResponse> found = submissionRepository.findForDevotion(devotionId);
+        Map<Long, ReactionSummary> reactions = reactionService.summaries(
+                leaderId, found.stream().map(LeaderSubmissionResponse::submissionId).toList());
+        List<LeaderSubmissionResponse> answers = found.stream()
+                .map(a -> a.withReactions(reactions.get(a.submissionId())))
+                .toList();
         return new LeaderSubmissionsResponse(
                 DevotionResponse.from(devotion, LocalDate.now(clock), answers.size()), answers);
     }
@@ -85,11 +96,14 @@ public class SubmissionReadService {
             return new MemberSubmissionsResponse(devotionResponse, false, LOCKED_MESSAGE, count, List.of());
         }
 
-        List<MemberSubmissionResponse> answers = submissionRepository.findForDevotion(devotionId).stream()
+        List<LeaderSubmissionResponse> found = submissionRepository.findForDevotion(devotionId);
+        Map<Long, ReactionSummary> reactions = reactionService.summaries(
+                memberId, found.stream().map(LeaderSubmissionResponse::submissionId).toList());
+        List<MemberSubmissionResponse> answers = found.stream()
                 .map(a -> new MemberSubmissionResponse(
                         a.submissionId(), a.participationNumber(), a.fullName(), a.content(), a.takeaway(), a.highlights(),
                         a.submittedAt(),
-                        a.memberId().equals(memberId), a.removedAt() != null))
+                        a.memberId().equals(memberId), a.removedAt() != null, reactions.get(a.submissionId())))
                 .toList();
         return new MemberSubmissionsResponse(devotionResponse, true, null, answers.size(), answers);
     }

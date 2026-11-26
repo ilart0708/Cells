@@ -21,6 +21,13 @@ For anyone (or any Claude session, on any account) continuing this work. Read th
 
 ## Current state of work (26 Nov 2026)
 
+### Branch `feature/answer-reactions` (pushed, NOT merged, NOT deployed; built on top of `feature/answer-highlights`)
+Members and the room's leader can react to a shared answer with Amen 🙏, Encouraged 💛, Helpful 💡 or Praying 🕊️.
+- Rules (owner chose "B"): a member can react once they could read the answers (shared their own, exempt, or day over); the leader any time in their own active room. One reaction per person per answer, tapping another changes it, tapping the same takes it back. Not on your own answer or a removed answer. Counts are shown, who reacted is never returned. No EXP, no notifications.
+- Migration `V25__answer_reactions.sql` (unique per answer and user, cascades on answer or account delete). Package `reaction/` (`ReactionService`, upsert is one atomic SQL statement). Endpoints `PUT/DELETE /member|leader/rooms/{roomId}/submissions/{id}/reaction` return `{counts, mine}`; answer lists now carry `reactions`.
+- Frontend: `ReactionBar.vue` under every answer (member panel and leader answers), `api/reactions.js`, `constants/reactions.js`. Postman folder "Reactions (shared answers)". Privacy policy and Play docs updated.
+- Not compiled or built by Claude. Merge order: `feature/answer-highlights` first (this branch contains it), or merge this one alone since it includes both.
+
 ### Branch `feature/answer-highlights` (pushed, NOT merged, NOT deployed)
 Members can mark key sentences in their own answer and add a one-line key takeaway; the leader and the other members see them.
 - Migration `V24__answer_highlights.sql`: `devotion_submissions.takeaway` (200) and `highlights` (text "start-end,start-end"). Additive, so the live website keeps working after the backend deploys.
@@ -56,7 +63,7 @@ Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening
 - Before submitting: `APP_RATE_LIMIT_DEBUG` must be off on Render.
 
 ## Open items
-1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/answer-highlights` before or together with that publish.
+1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/answer-reactions` (it includes `feature/answer-highlights`) before or together with that publish.
 2. Rate limiter: set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render, delete `APP_RATE_LIMIT_DEBUG`, re-test; decide on the signed Netlify proxy (website path) before production. The limiter was not effective in the 24 Nov test (Cloudflare edge address changes per request).
 3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
 4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.

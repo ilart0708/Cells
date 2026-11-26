@@ -11,6 +11,7 @@ import DevotionCard from '../../components/DevotionCard.vue'
 import GuidanceEditor from '../../components/GuidanceEditor.vue'
 import PageState from '../../components/PageState.vue'
 import ParticipationBadge from '../../components/ParticipationBadge.vue'
+import ReactionBar from '../../components/ReactionBar.vue'
 import RoomTitle from '../../components/RoomTitle.vue'
 import { formatDateTime } from '../../utils/format'
 
@@ -179,6 +180,13 @@ watch(
               :takeaway="answer.takeaway ?? ''"
               :highlights="answer.highlights ?? []"
               :removed="!!answer.removedAt"
+            />
+            <ReactionBar
+              v-if="!answer.removedAt"
+              role="leader"
+              :room-id="roomId"
+              :submission-id="answer.submissionId"
+              :summary="answer.reactions"
             />
           </li>
         </ul>

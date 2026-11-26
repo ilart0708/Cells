@@ -803,10 +803,10 @@
                 "submissions"
               ]
             },
-            "description": "When the submission unlocks the next member, that member gets YOUR_TURN. Role: MEMBER. Optional: takeaway (one line, max 200) and highlights (up to 5 non-overlapping ranges of characters in content, start included, end excluded; they are checked against the trimmed content, 400 with errors.highlights if they do not fit). Both are saved with the answer and cannot be changed later; the answer response and the answers lists return them.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/member/rooms/{{roomId}}/devotions/{{devotionId}}/submissions\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"content\": \"God is love. He gave His Son.\",\n  \"takeaway\": \"God\u2019s love is a gift.\",\n  \"highlights\": [{\"start\": 0, \"end\": 12}]\n}'\n```",
+            "description": "When the submission unlocks the next member, that member gets YOUR_TURN. Role: MEMBER. Optional: takeaway (one line, max 200) and highlights (up to 5 non-overlapping ranges of characters in content, start included, end excluded; they are checked against the trimmed content, 400 with errors.highlights if they do not fit). Both are saved with the answer and cannot be changed later; the answer response and the answers lists return them.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/member/rooms/{{roomId}}/devotions/{{devotionId}}/submissions\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"content\": \"God is love. He gave His Son.\",\n  \"takeaway\": \"God’s love is a gift.\",\n  \"highlights\": [{\"start\": 0, \"end\": 12}]\n}'\n```",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"God is love. He gave His Son.\",\n  \"takeaway\": \"God\u2019s love is a gift.\",\n  \"highlights\": [{\"start\": 0, \"end\": 12}]\n}",
+              "raw": "{\n  \"content\": \"God is love. He gave His Son.\",\n  \"takeaway\": \"God’s love is a gift.\",\n  \"highlights\": [{\"start\": 0, \"end\": 12}]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1214,6 +1214,185 @@
               ]
             },
             "description": "Log in as the room's LEADER. Replaces the answer's text with 'This answer was removed by the leader.' and closes every open report about it. Participation and EXP are unchanged. Returns 204. Cannot be undone.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/leader/rooms/{{roomId}}/reports/{{reportId}}/remove-answer\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reactions (shared answers)",
+      "item": [
+        {
+          "name": "Member reacts to an answer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/member/rooms/{{roomId}}/submissions/{{submissionId}}/reaction",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "member",
+                "rooms",
+                "{{roomId}}",
+                "submissions",
+                "{{submissionId}}",
+                "reaction"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"AMEN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Log in as a MEMBER of the room. Reacts to a fellow member's shared answer (submissionId from GET .../devotions/{id}/submissions as `id`). type: AMEN, ENCOURAGED, HELPFUL or PRAYING. One reaction per person per answer: sending another type changes it. Returns {counts:{AMEN,ENCOURAGED,HELPFUL,PRAYING}, mine}. Who reacted is never returned. 404 if the room or answer is not yours; 422 for your own answer, a removed answer, or (members) before you shared your own answer; 400 for an unknown type.\n\ncURL:\n\n```\ncurl -X PUT \"{{baseUrl}}/member/rooms/{{roomId}}/submissions/{{submissionId}}/reaction\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"type\": \"AMEN\"\n}'\n```"
+          }
+        },
+        {
+          "name": "Member takes back a reaction",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/member/rooms/{{roomId}}/submissions/{{submissionId}}/reaction",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "member",
+                "rooms",
+                "{{roomId}}",
+                "submissions",
+                "{{submissionId}}",
+                "reaction"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Log in as a MEMBER of the room. Removes my reaction to that answer; harmless if I had none. Returns the updated summary.\n\ncURL:\n\n```\ncurl -X DELETE \"{{baseUrl}}/member/rooms/{{roomId}}/submissions/{{submissionId}}/reaction\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```"
+          }
+        },
+        {
+          "name": "Leader reacts to an answer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/submissions/{{submissionId}}/reaction",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "submissions",
+                "{{submissionId}}",
+                "reaction"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"AMEN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Log in as the room's LEADER. Same as the member version for the leader's own room (submissionId from GET .../leader/rooms/{id}/devotions/{id}/submissions as `submissionId`). The leader may react at any time; 422 if the room is archived. type: AMEN, ENCOURAGED, HELPFUL or PRAYING. One reaction per person per answer: sending another type changes it. Returns the updated summary.\n\ncURL:\n\n```\ncurl -X PUT \"{{baseUrl}}/leader/rooms/{{roomId}}/submissions/{{submissionId}}/reaction\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"type\": \"AMEN\"\n}'\n```"
+          }
+        },
+        {
+          "name": "Leader takes back a reaction",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/leader/rooms/{{roomId}}/submissions/{{submissionId}}/reaction",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leader",
+                "rooms",
+                "{{roomId}}",
+                "submissions",
+                "{{submissionId}}",
+                "reaction"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Log in as the room's LEADER. Removes my reaction to that answer. Returns the updated summary.\n\ncURL:\n\n```\ncurl -X DELETE \"{{baseUrl}}/leader/rooms/{{roomId}}/submissions/{{submissionId}}/reaction\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\"\n```"
           }
         }
       ]
