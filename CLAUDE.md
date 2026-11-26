@@ -1392,3 +1392,6 @@ These open questions from Section 16 of the product documentation block specific
 - Enforce every rule in the backend; the frontend only reflects it.
 - Never commit passwords, tokens or `.env` files.
 - Update the product documentation whenever a rule changes.
+
+## Handoff rule
+- At the end of every piece of work, update `docs/HANDOFF.md` (what changed, branch name, what is open) so another session or account can continue. Keep the Claude Project copy "CELLS - Handoff Status" in sync.
