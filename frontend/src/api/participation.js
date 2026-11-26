@@ -5,10 +5,11 @@ import { request } from './http'
 // Today's devotion, my status, and everyone's status in participation order
 export const getParticipationBoard = (roomId) => request(`/member/rooms/${roomId}/participation/today`)
 
-export const submitUnderstanding = (roomId, devotionId, content) =>
+// takeaway (one line) and highlights ([{ start, end }] inside content) are optional.
+export const submitUnderstanding = (roomId, devotionId, content, takeaway = '', highlights = []) =>
   request(`/member/rooms/${roomId}/devotions/${devotionId}/submissions`, {
     method: 'POST',
-    body: { content },
+    body: { content, takeaway: takeaway || null, highlights },
   })
 
 // { unlocked, lockedMessage, submittedCount, submissions }. While locked there is no text, only the count.

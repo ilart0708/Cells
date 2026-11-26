@@ -87,7 +87,8 @@ public class SubmissionReadService {
 
         List<MemberSubmissionResponse> answers = submissionRepository.findForDevotion(devotionId).stream()
                 .map(a -> new MemberSubmissionResponse(
-                        a.submissionId(), a.participationNumber(), a.fullName(), a.content(), a.submittedAt(),
+                        a.submissionId(), a.participationNumber(), a.fullName(), a.content(), a.takeaway(), a.highlights(),
+                        a.submittedAt(),
                         a.memberId().equals(memberId), a.removedAt() != null))
                 .toList();
         return new MemberSubmissionsResponse(devotionResponse, true, null, answers.size(), answers);

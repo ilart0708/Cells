@@ -28,7 +28,8 @@ public interface DevotionSubmissionRepository extends JpaRepository<DevotionSubm
     // since left the room: their answer stays in the history, but they no longer have a place in the order.
     @Query("""
             select new com.cells.backend.participation.LeaderSubmissionResponse(
-                s.id, s.memberId, u.fullName, rm.participationNumber, s.content, s.submittedAt, s.moderatedAt)
+                s.id, s.memberId, u.fullName, rm.participationNumber, s.content, s.takeaway, s.highlights,
+                s.submittedAt, s.moderatedAt)
             from DevotionSubmission s
             join User u on u.id = s.memberId
             left join RoomMember rm

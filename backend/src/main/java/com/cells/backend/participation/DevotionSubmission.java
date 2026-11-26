@@ -25,6 +25,14 @@ public class DevotionSubmission {
     @Column(nullable = false, length = 2000)
     private String content;
 
+    /** Optional one-line key point, written with the answer. */
+    @Column(length = 200)
+    private String takeaway;
+
+    /** Marked passages of the content, "start-end,start-end". */
+    @Column(length = 100)
+    private String highlights;
+
     @Column(name = "submitted_at", nullable = false, updatable = false)
     private Instant submittedAt = Instant.now();
 
@@ -45,17 +53,28 @@ public class DevotionSubmission {
         this.content = content;
     }
 
+    public DevotionSubmission(Long devotionId, Long roomId, Long memberId, String content,
+                              String takeaway, String highlights) {
+        this(devotionId, roomId, memberId, content);
+        this.takeaway = takeaway;
+        this.highlights = highlights;
+    }
+
     public Long getId() { return id; }
     public Long getDevotionId() { return devotionId; }
     public Long getRoomId() { return roomId; }
     public Long getMemberId() { return memberId; }
     public String getContent() { return content; }
+    public String getTakeaway() { return takeaway; }
+    public String getHighlights() { return highlights; }
     public Instant getSubmittedAt() { return submittedAt; }
     public Instant getModeratedAt() { return moderatedAt; }
 
     /** Removes the text only. The row stays, so participation and EXP are unchanged. */
     public void moderate(Instant now) {
         this.content = REMOVED_TEXT;
+        this.takeaway = null;
+        this.highlights = null;
         this.moderatedAt = now;
     }
 

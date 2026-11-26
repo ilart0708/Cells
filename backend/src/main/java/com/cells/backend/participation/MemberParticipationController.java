@@ -30,7 +30,8 @@ public class MemberParticipationController {
     public ResponseEntity<SubmissionResponse> submit(
             @AuthenticationPrincipal Jwt jwt, @PathVariable Long roomId, @PathVariable Long devotionId,
             @Valid @RequestBody SubmissionRequest request) {
-        SubmissionResponse saved = participationService.submit(memberId(jwt), roomId, devotionId, request.content());
+        SubmissionResponse saved = participationService.submit(
+                memberId(jwt), roomId, devotionId, request.content(), request.takeaway(), request.highlights());
         return ResponseEntity.status(HttpStatus.CREATED).header("Cache-Control", "no-store").body(saved);
     }
 

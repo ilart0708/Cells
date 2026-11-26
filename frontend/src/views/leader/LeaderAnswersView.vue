@@ -5,6 +5,7 @@ import { getLeaderGuidance, saveReflection, saveSummary } from '../../api/guidan
 import { ApiError } from '../../api/http'
 import { getDevotionAnswers } from '../../api/leaderParticipation'
 import { getRoom } from '../../api/rooms'
+import AnswerText from '../../components/AnswerText.vue'
 import { btnOutline } from '../../components/buttonClasses'
 import DevotionCard from '../../components/DevotionCard.vue'
 import GuidanceEditor from '../../components/GuidanceEditor.vue'
@@ -173,7 +174,12 @@ watch(
               </span>
             </div>
             <p class="text-sm text-muted">{{ formatDateTime(answer.submittedAt) }}</p>
-            <p class="whitespace-pre-line break-words text-sm text-navy-900">{{ answer.content }}</p>
+            <AnswerText
+              :content="answer.content"
+              :takeaway="answer.takeaway ?? ''"
+              :highlights="answer.highlights ?? []"
+              :removed="!!answer.removedAt"
+            />
           </li>
         </ul>
       </section>

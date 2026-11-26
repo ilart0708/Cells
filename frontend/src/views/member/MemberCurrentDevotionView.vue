@@ -4,6 +4,7 @@ import { RouterLink, onBeforeRouteLeave } from 'vue-router'
 import { ApiError } from '../../api/http'
 import { getMyRoom } from '../../api/memberRooms'
 import { getParticipationBoard, submitUnderstanding } from '../../api/participation'
+import AnswerText from '../../components/AnswerText.vue'
 import { btnOutline } from '../../components/buttonClasses'
 import ConfirmDialog from '../../components/ConfirmDialog.vue'
 import DevotionCard from '../../components/DevotionCard.vue'
@@ -15,6 +16,7 @@ import SubmissionForm from '../../components/SubmissionForm.vue'
 import SubmissionsPanel from '../../components/SubmissionsPanel.vue'
 import { usePolling } from '../../composables/usePolling'
 import { formatDay } from '../../utils/dates'
+import { shiftForTrim } from '../../utils/highlights'
 import { formatDateTime } from '../../utils/format'
 import GuidancePanel from '../../components/GuidancePanel.vue'
 
@@ -31,6 +33,8 @@ let latestRequest = 0
 
 // ---------- the draft (kept in memory only: it is a personal reflection) ----------
 const draft = ref('')
+const draftTakeaway = ref('') // optional one-line key point
+const draftHighlights = ref([]) // marked passages of the draft: [{ start, end }]
 const draftFor = ref(null) // which devotion the draft was written for
 const staleDraft = ref('') // text that was not shared before a new day's devotion replaced the old one
 const fieldError = ref('')
@@ -64,6 +68,8 @@ function applyBoard(data) {
   if (draftIsForAnotherDevotion) {
     staleDraft.value = draft.value
     draft.value = ''
+    draftTakeaway.value = ''
+    draftHighlights.value = []
     draftFor.value = null
     fieldError.value = ''
   }
@@ -83,6 +89,8 @@ async function loadAll() {
   state.value = 'loading'
   board.value = null
   draft.value = ''
+  draftTakeaway.value = ''
+  draftHighlights.value = []
   draftFor.value = null
   staleDraft.value = ''
   notice.value = ''
@@ -146,9 +154,17 @@ async function confirmSubmit() {
   submit.busy = true
   submit.error = ''
   try {
-    await submitUnderstanding(props.roomId, devotion.value.id, draft.value.trim())
+    await submitUnderstanding(
+      props.roomId,
+      devotion.value.id,
+      draft.value.trim(),
+      draftTakeaway.value.trim(),
+      shiftForTrim(draft.value, draftHighlights.value),
+    )
     submit.open = false
     draft.value = ''
+    draftTakeaway.value = ''
+    draftHighlights.value = []
     draftFor.value = null
     notice.value = 'Your understanding was shared. Thank you!'
     announcement.value = notice.value
@@ -159,7 +175,7 @@ async function confirmSubmit() {
       state.value = 'notfound'
     } else if (e instanceof ApiError && e.status === 400) {
       submit.open = false
-      fieldError.value = e.fieldErrors.content || e.message
+      fieldError.value = e.fieldErrors.content || e.fieldErrors.takeaway || e.fieldErrors.highlights || e.message
     } else if (e instanceof ApiError && [409, 422].includes(e.status)) {
       // The turn, the day or the exemption changed under us: say so, and show what is true now.
       submit.open = false
@@ -267,6 +283,8 @@ watch(() => props.roomId, loadAll)
         <SubmissionForm
           v-if="myStatus === 'ELIGIBLE'"
           v-model="draft"
+          v-model:takeaway="draftTakeaway"
+          v-model:highlights="draftHighlights"
           :error="fieldError"
           :saving="submit.busy"
           @submit="askSubmit"
@@ -279,7 +297,11 @@ watch(() => props.roomId, loadAll)
           <p class="text-xs font-bold uppercase tracking-[2px] text-gold-700">Shared</p>
           <h2 class="text-lg font-bold text-navy-900">You shared your understanding</h2>
           <p class="text-sm text-muted">{{ formatDateTime(board.mySubmission.submittedAt) }}</p>
-          <p class="whitespace-pre-line break-words text-sm text-navy-900">{{ board.mySubmission.content }}</p>
+          <AnswerText
+            :content="board.mySubmission.content"
+            :takeaway="board.mySubmission.takeaway ?? ''"
+            :highlights="board.mySubmission.highlights ?? []"
+          />
         </section>
 
         <section v-else-if="myStatus === 'WAITING' && board.waitingFor" class="space-y-1 rounded-[18px] border border-line bg-white p-5">

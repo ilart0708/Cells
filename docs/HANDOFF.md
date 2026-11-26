@@ -1,4 +1,4 @@
-# CELLS - Handoff status (last updated 26 November 2026)
+# CELLS - Handoff status (last updated 26 November 2026, evening)
 
 For anyone (or any Claude session, on any account) continuing this work. Read this first. The Roadmap, Product Concept and Design System Guide are the source of truth for product rules. A copy of this note also lives in the Claude Project "Cells" as `claude/CELLS - Handoff Status (26 Nov 2026).md`.
 
@@ -21,7 +21,18 @@ For anyone (or any Claude session, on any account) continuing this work. Read th
 
 ## Current state of work (26 Nov 2026)
 
-### Branch `release/self-registration-and-rules` (pushed, commit af51c84, NOT merged, NOT deployed)
+### Branch `feature/answer-highlights` (pushed, NOT merged, NOT deployed)
+Members can mark key sentences in their own answer and add a one-line key takeaway; the leader and the other members see them.
+- Migration `V24__answer_highlights.sql`: `devotion_submissions.takeaway` (200) and `highlights` (text "start-end,start-end"). Additive, so the live website keeps working after the backend deploys.
+- `POST .../submissions` accepts optional `takeaway` and `highlights` (max 5 non-overlapping character ranges of the trimmed answer, checked by `Highlights.validated`, 400 with `errors.highlights`). Written once with the answer, never edited. A leader removing a reported answer clears both.
+- Answer responses (own, room list, leader list) now include `takeaway` and `highlights`.
+- Frontend: highlight tool and takeaway box in `SubmissionForm` (select text, tap Highlight; editing the text clears the marks), new `AnswerText.vue` used everywhere an answer is shown, `utils/highlights.js`. Privacy policy sentence and Postman submit request updated.
+- Not compiled or built by Claude (node_modules is incomplete in the sandbox). Check the Render build and the next Netlify publish. Old frontend plus new backend is safe; new frontend needs the new backend.
+
+### Merged and deployed: `release/self-registration-and-rules` (PRs #39 and #40)
+The backend is deployed on Render (owner confirmed 26 Nov). Netlify publish is still manual and pending, so "Create your group", the rules checkbox and the "not verified" label are not on the website yet. After the website is published, make `acceptRules` required again.
+
+### Earlier description of that release (for reference)
 One combined branch from `main`, ready for one PR. It supersedes `feature/leader-self-registration` and `feature/rules-on-invitation` (older, can be deleted after merge).
 
 1. **Leader self-registration** (`POST /api/v1/auth/register-leader`, public, rate-limited):
@@ -45,7 +56,7 @@ Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening
 - Before submitting: `APP_RATE_LIMIT_DEBUG` must be off on Render.
 
 ## Open items
-1. Merge `release/self-registration-and-rules`, deploy Render, then publish Netlify (owner). Afterwards make `acceptRules` required on the server.
+1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/answer-highlights` before or together with that publish.
 2. Rate limiter: set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render, delete `APP_RATE_LIMIT_DEBUG`, re-test; decide on the signed Netlify proxy (website path) before production. The limiter was not effective in the 24 Nov test (Cloudflare edge address changes per request).
 3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
 4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.

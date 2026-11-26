@@ -4,7 +4,7 @@
 import { CONTACT_EMAIL, OPERATOR_NAME } from '../constants/contact'
 
 const APP_NAME = 'CELLS'
-const LAST_UPDATED = '25 November 2026'
+const LAST_UPDATED = '26 November 2026'
 
 const sections = [
   {
@@ -19,7 +19,7 @@ const sections = [
       'Your name and email address, so you can have an account and sign in.',
       'Your password. We store only a scrambled (hashed) version, never the password itself.',
       'Your church, your cell group room and your place in its participation order.',
-      'What you write: your understanding of each passage, and the summaries or reflections a leader writes.',
+      'What you write: your understanding of each passage, including any key sentences you highlight and the one-line takeaway you add, and the summaries or reflections a leader writes.',
       'Participation records: whether you submitted on a given day, a day off granted by your leader, and the experience points you earned.',
       'If you register a group yourself without an invitation: your church’s name, your pastor’s name and, if you choose to give it, your pastor’s email address. This shows who the group answers to. We do not contact your pastor today.',
       'Reports: if you report another member’s answer, we store the reason you chose, your optional note, and which answer it was about.',
@@ -45,7 +45,7 @@ const sections = [
   {
     title: 'Who can see what',
     list: [
-      'Your written understanding is shown to your cell group: your leader and the members of your room.',
+      'Your written understanding, with its highlights and takeaway, is shown to your cell group: your leader and the members of your room.',
       'If an answer is reported, only the leader of that room sees the answer, the reason and the note (if one was written). The leader never sees who made the report. The leader can keep the answer or remove it. A removed answer’s text is replaced with “This answer was removed by the leader.” and still counts for participation and experience points.',
       'If a leader registered the group without an invitation, the pastor’s name they typed is shown with a “not verified” note to the members of that group and to administrators. A pastor’s email address, if given, is shown only to administrators.',
       'Pastors see participation statistics for their leaders and rooms, not individual written reflections.',

@@ -803,10 +803,10 @@
                 "submissions"
               ]
             },
-            "description": "When the submission unlocks the next member, that member gets YOUR_TURN. Role: MEMBER.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/member/rooms/{{roomId}}/devotions/{{devotionId}}/submissions\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"content\": \"God's love is unconditional.\"\n}'\n```",
+            "description": "When the submission unlocks the next member, that member gets YOUR_TURN. Role: MEMBER. Optional: takeaway (one line, max 200) and highlights (up to 5 non-overlapping ranges of characters in content, start included, end excluded; they are checked against the trimmed content, 400 with errors.highlights if they do not fit). Both are saved with the answer and cannot be changed later; the answer response and the answers lists return them.\n\ncURL:\n\n```\ncurl -X POST \"{{baseUrl}}/member/rooms/{{roomId}}/devotions/{{devotionId}}/submissions\" \\\n  -H \"Accept: application/json\" \\\n  -H \"Authorization: Bearer {{accessToken}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n  \"content\": \"God is love. He gave His Son.\",\n  \"takeaway\": \"God\u2019s love is a gift.\",\n  \"highlights\": [{\"start\": 0, \"end\": 12}]\n}'\n```",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"God's love is unconditional.\"\n}",
+              "raw": "{\n  \"content\": \"God is love. He gave His Son.\",\n  \"takeaway\": \"God\u2019s love is a gift.\",\n  \"highlights\": [{\"start\": 0, \"end\": 12}]\n}",
               "options": {
                 "raw": {
                   "language": "json"
