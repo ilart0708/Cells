@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Small notification icon: the CELLS mark (rounded square with a dot) in plain white on transparent.
+     Android only uses the shape, so it must not have a background. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Rounded square outline (even-odd: outer shape minus inner shape) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M8,2 H16 A6,6 0 0 1 22,8 V16 A6,6 0 0 1 16,22 H8 A6,6 0 0 1 2,16 V8 A6,6 0 0 1 8,2 Z M8,4.5 A3.5,3.5 0 0 0 4.5,8 V16 A3.5,3.5 0 0 0 8,19.5 H16 A3.5,3.5 0 0 0 19.5,16 V8 A3.5,3.5 0 0 0 16,4.5 Z" />
+    <!-- The dot -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,8.6 A3.4,3.4 0 1 1 12,15.4 A3.4,3.4 0 1 1 12,8.6 Z" />
+</vector>

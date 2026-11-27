@@ -21,6 +21,9 @@ For anyone (or any Claude session, on any account) continuing this work. Read th
 
 ## Current state of work (26 Nov 2026)
 
+### Branch `feature/notification-icon` (pushed, NOT merged; built on `feature/leader-dashboard-status`)
+Android only: `res/drawable/ic_stat_cells.xml` (white CELLS mark on transparent), `res/values/colors.xml` (navy accent) and two Firebase `default_notification_*` meta-data entries in `AndroidManifest.xml`, so push notifications no longer show the launcher icon as a white square. Needs `npm run cap:sync` and a rebuild; check on a real phone by sending a test push (see `docs/android-app.md`).
+
 ### Branch `feature/leader-dashboard-status` (pushed, NOT merged, NOT deployed; built on `feature/level-badges-header`)
 Frontend only. The leader dashboard (`views/LeaderDashboardView.vue`) was just a welcome card and a button. It now shows, for each active room (up to 20): room title, today's devotion, a "Participation today" progress bar (exempt members not counted), whose turn it is, a warning when the line is stuck on a disabled account, and every member with number, name and status pill (Submitted, Their turn, Waiting, Exempted). Top tiles: active rooms, members, shared today, still to share. Buttons: Today's board, Open room, All my rooms. It reuses `GET /leader/rooms` and `GET /leader/rooms/{id}/participation/today` (one call per room, on load and every 30 s while the tab is visible), so no backend change and no Postman request. `PlaceholderDashboard.vue` is no longer used by the leader.
 
@@ -68,11 +71,11 @@ Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening
 
 ## Google Play status
 - Done: privacy policy and delete-account pages, Data safety and store listing drafts (`docs/play-store.md`), graphics and 8 screenshots (delivered as a zip), tester invitation message.
-- Still to do: launcher icon (1024 px), splash, transparent notification icon; signed `.aab` (`docs/android-app.md`); create test accounts for Google's App access; start the closed test (12 testers opted in for 14 days; personal account created after 13 Nov 2023); then apply for production.
+- Launcher icon and splash exist (`frontend/assets`). Notification icon added on `feature/notification-icon`. Still to do: signed `.aab` (`docs/android-app.md`); create test accounts for Google's App access; start the closed test (12 testers opted in for 14 days; personal account created after 13 Nov 2023); then apply for production.
 - Before submitting: `APP_RATE_LIMIT_DEBUG` must be off on Render.
 
 ## Open items
-1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/leader-dashboard-status` (it includes `feature/level-badges-header`, `feature/answer-reactions` and `feature/answer-highlights`) before or together with that publish.
+1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/notification-icon` (it includes `feature/leader-dashboard-status`, `feature/level-badges-header`, `feature/answer-reactions` and `feature/answer-highlights`) before or together with that publish.
 2. Rate limiter: set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render, delete `APP_RATE_LIMIT_DEBUG`, re-test; decide on the signed Netlify proxy (website path) before production. The limiter was not effective in the 24 Nov test (Cloudflare edge address changes per request).
 3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
 4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.
