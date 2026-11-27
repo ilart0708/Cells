@@ -21,6 +21,9 @@ For anyone (or any Claude session, on any account) continuing this work. Read th
 
 ## Current state of work (26 Nov 2026)
 
+### Branch `feature/leader-dashboard-status` (pushed, NOT merged, NOT deployed; built on `feature/level-badges-header`)
+Frontend only. The leader dashboard (`views/LeaderDashboardView.vue`) was just a welcome card and a button. It now shows, for each active room (up to 20): room title, today's devotion, a "Participation today" progress bar (exempt members not counted), whose turn it is, a warning when the line is stuck on a disabled account, and every member with number, name and status pill (Submitted, Their turn, Waiting, Exempted). Top tiles: active rooms, members, shared today, still to share. Buttons: Today's board, Open room, All my rooms. It reuses `GET /leader/rooms` and `GET /leader/rooms/{id}/participation/today` (one call per room, on load and every 30 s while the tab is visible), so no backend change and no Postman request. `PlaceholderDashboard.vue` is no longer used by the leader.
+
 ### Branch `feature/level-badges-header` (pushed, NOT merged, NOT deployed; built on `feature/answer-reactions`)
 Frontend only, no backend or database change, so no Postman request.
 - `LevelBadge.vue`: round badge icons for the five levels (Seed, Sprout, Branch, Tree, Fruitful), grey when locked. Used on the Experience page (big on the hero card, one per row of the ladder) and in `GrowthLevelPill`.
@@ -69,7 +72,7 @@ Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening
 - Before submitting: `APP_RATE_LIMIT_DEBUG` must be off on Render.
 
 ## Open items
-1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/level-badges-header` (it includes `feature/answer-reactions` and `feature/answer-highlights`) before or together with that publish.
+1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/leader-dashboard-status` (it includes `feature/level-badges-header`, `feature/answer-reactions` and `feature/answer-highlights`) before or together with that publish.
 2. Rate limiter: set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render, delete `APP_RATE_LIMIT_DEBUG`, re-test; decide on the signed Netlify proxy (website path) before production. The limiter was not effective in the 24 Nov test (Cloudflare edge address changes per request).
 3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
 4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.
