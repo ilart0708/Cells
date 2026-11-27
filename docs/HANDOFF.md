@@ -76,7 +76,7 @@ Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening
 
 ## Open items
 1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/notification-icon` (it includes `feature/leader-dashboard-status`, `feature/level-badges-header`, `feature/answer-reactions` and `feature/answer-highlights`) before or together with that publish.
-2. Rate limiter: set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render, delete `APP_RATE_LIMIT_DEBUG`, re-test; decide on the signed Netlify proxy (website path) before production. The limiter was not effective in the 24 Nov test (Cloudflare edge address changes per request).
+2. Rate limiter: DONE. The owner verified on 27 Nov 2026 that Render has `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP`, that `APP_RATE_LIMIT_NETLIFY_SIGN_SECRET` matches the Netlify variable, and that `APP_RATE_LIMIT_DEBUG` is not set (debug off). Optional re-test: 12 wrong logins in a row should end in 429.
 3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
 4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.
 5. Push retry can duplicate a notification on a second phone when one phone's send fails.
