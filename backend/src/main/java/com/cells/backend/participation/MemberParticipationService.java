@@ -107,7 +107,8 @@ public class MemberParticipationService {
     }
 
     @Transactional
-    public SubmissionResponse submit(Long memberId, Long roomId, Long devotionId, String rawContent) {
+    public SubmissionResponse submit(Long memberId, Long roomId, Long devotionId, String rawContent,
+                                     String rawTakeaway, List<HighlightRange> rawHighlights) {
         // 1. Cheap check first, so strangers never reach the lock.
         if (roomMemberRepository.findRoomOf(memberId, roomId, RoomStatus.ACTIVE).isEmpty()) {
             throw roomNotFound();
@@ -156,8 +157,13 @@ public class MemberParticipationService {
             }
         }
 
+        // The optional extras are checked against the text that is actually saved.
+        String content = rawContent.strip();
+        String takeaway = (rawTakeaway == null || rawTakeaway.isBlank()) ? null : rawTakeaway.strip();
+        String highlights = Highlights.encode(Highlights.validated(rawHighlights, content.length()));
+
         DevotionSubmission saved = submissionRepository.save(
-                new DevotionSubmission(devotionId, roomId, memberId, rawContent.strip()));
+                new DevotionSubmission(devotionId, roomId, memberId, content, takeaway, highlights));
 
         // EXP is awarded here, in the same transaction, and only after every check above has passed.
         // That is what "verified and eligible" means: waiting, exempt and blocked members never get here.

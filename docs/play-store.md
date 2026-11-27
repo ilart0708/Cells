@@ -94,6 +94,7 @@ and still counts for participation and EXP. The reporter is never shown. Use thi
 Reasons offered: Offensive or hateful, Harassment or bullying, Inappropriate or explicit, Spam or not related to the passage, Something else.
 Limits to be honest about:
 - Reports go to the room's leader, not to an administrator, and there is no per-user block.
+- Reactions are warm only (Amen, Encouraged, Helpful, Praying) with no downvote, and show as counts without names.
 - Closed groups only: nobody can read a room's answers without an invitation, and a member sees others' answers only after sharing their own.
 - Everyone agrees to short community rules before an account is created, on the page where they join: members, invited leaders and
   pastors on the accept-invitation page (rules shown for their role), and leaders who create their own group on "Create your group"

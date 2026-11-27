@@ -3,7 +3,9 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { getRoomAnswers } from '../api/participation'
 import { formatDateTime } from '../utils/format'
 import { btnOutline } from './buttonClasses'
+import AnswerText from './AnswerText.vue'
 import ParticipationBadge from './ParticipationBadge.vue'
+import ReactionBar from './ReactionBar.vue'
 import ReportAnswerDialog from './ReportAnswerDialog.vue'
 
 const props = defineProps({
@@ -108,9 +110,20 @@ watch(() => props.refreshKey, () => load({ quiet: true }))
           </span>
         </div>
         <p class="text-sm text-muted">{{ formatDateTime(answer.submittedAt) }}</p>
-        <p :class="['whitespace-pre-line break-words text-sm', answer.removed ? 'italic text-muted' : 'text-navy-900']">
-          {{ answer.content }}
-        </p>
+        <AnswerText
+          :content="answer.content"
+          :takeaway="answer.takeaway ?? ''"
+          :highlights="answer.highlights ?? []"
+          :removed="answer.removed"
+        />
+        <ReactionBar
+          v-if="!answer.removed"
+          role="member"
+          :room-id="roomId"
+          :submission-id="answer.id"
+          :summary="answer.reactions"
+          :readonly="answer.you"
+        />
         <div v-if="!answer.you && !answer.removed" class="flex justify-end">
           <span v-if="reported.has(answer.id)" class="text-sm font-semibold text-muted">Reported</span>
           <button
