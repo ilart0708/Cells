@@ -1,10 +1,13 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useProgressStore } from '../stores/progress'
 import { ROLE_LABEL } from '../constants/roles'
 import BaseDialog from './BaseDialog.vue'
 import CycleIndicator from './CycleIndicator.vue'
+import FlameIcon from './FlameIcon.vue'
+import LevelBadge from './LevelBadge.vue'
 
 const props = defineProps({
   // [{ label, to, alsoActiveOn?, more? }]. alsoActiveOn lists route names (such as a detail page) that keep this
@@ -14,6 +17,7 @@ const props = defineProps({
 })
 
 const auth = useAuthStore()
+const progress = useProgressStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -39,7 +43,12 @@ function currentState(item, linkIsActive) {
   return item.alsoActiveOn?.includes(route.name) ? 'true' : undefined
 }
 
+onMounted(() => {
+  if (auth.role === 'MEMBER') progress.load(auth.user.id)
+})
+
 async function logout() {
+  progress.reset()
   await auth.logout()
   await router.push({ name: 'login' })
 }
@@ -76,6 +85,26 @@ async function logout() {
         </span>
         <div class="flex-1"></div>
         <span class="hidden text-sm font-semibold text-muted sm:inline">{{ auth.user.fullName }}</span>
+        <template v-if="auth.role === 'MEMBER' && progress.ready">
+          <RouterLink
+            :to="{ name: 'member-experience' }"
+            :title="`Your level: ${progress.level.name}`"
+            class="inline-flex min-h-11 items-center gap-1.5 rounded-full px-1 text-xs font-bold text-navy-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            <LevelBadge :code="progress.level.code" :size="28" />
+            <span class="hidden sm:inline">{{ progress.level.name }}</span>
+            <span class="sr-only sm:hidden">Level {{ progress.level.name }}</span>
+          </RouterLink>
+          <RouterLink
+            :to="{ name: 'member-history' }"
+            :title="progress.streak === 1 ? '1 devotion in a row' : `${progress.streak} devotions in a row`"
+            class="inline-flex min-h-11 items-center gap-1 rounded-full bg-gold-100 px-3 text-xs font-bold text-navy-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-900"
+          >
+            <FlameIcon :size="16" />
+            {{ progress.streak }}
+            <span class="sr-only">{{ progress.streak === 1 ? 'devotion in a row' : 'devotions in a row' }}</span>
+          </RouterLink>
+        </template>
         <span
           class="rounded-full bg-navy-900 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-500"
         >
