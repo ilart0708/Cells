@@ -21,6 +21,12 @@ For anyone (or any Claude session, on any account) continuing this work. Read th
 
 ## Current state of work (26 Nov 2026)
 
+### Branch `feature/level-badges-header` (pushed, NOT merged, NOT deployed; built on `feature/answer-reactions`)
+Frontend only, no backend or database change, so no Postman request.
+- `LevelBadge.vue`: round badge icons for the five levels (Seed, Sprout, Branch, Tree, Fruitful), grey when locked. Used on the Experience page (big on the hero card, one per row of the ladder) and in `GrowthLevelPill`.
+- Member header (`AppShell.vue`): order is Name, level badge, streak flame, role, Log out. Badge links to Experience, streak links to History. Streak = the longest current streak (devotions in a row) across the member's active rooms. Data comes from the existing `/member/experience` and `/member/participation/summary` through `stores/progress.js` (reset on logout, refreshed after sharing an answer). Other roles keep the old header.
+- Not compiled or built by Claude.
+
 ### Branch `feature/answer-reactions` (pushed, NOT merged, NOT deployed; built on top of `feature/answer-highlights`)
 Members and the room's leader can react to a shared answer with Amen 🙏, Encouraged 💛, Helpful 💡 or Praying 🕊️.
 - Rules (owner chose "B"): a member can react once they could read the answers (shared their own, exempt, or day over); the leader any time in their own active room. One reaction per person per answer, tapping another changes it, tapping the same takes it back. Not on your own answer or a removed answer. Counts are shown, who reacted is never returned. No EXP, no notifications.
@@ -63,7 +69,7 @@ Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening
 - Before submitting: `APP_RATE_LIMIT_DEBUG` must be off on Render.
 
 ## Open items
-1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/answer-reactions` (it includes `feature/answer-highlights`) before or together with that publish.
+1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/level-badges-header` (it includes `feature/answer-reactions` and `feature/answer-highlights`) before or together with that publish.
 2. Rate limiter: set `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP` on Render, delete `APP_RATE_LIMIT_DEBUG`, re-test; decide on the signed Netlify proxy (website path) before production. The limiter was not effective in the 24 Nov test (Cloudflare edge address changes per request).
 3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
 4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.

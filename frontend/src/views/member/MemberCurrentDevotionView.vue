@@ -16,6 +16,8 @@ import SubmissionForm from '../../components/SubmissionForm.vue'
 import SubmissionsPanel from '../../components/SubmissionsPanel.vue'
 import { usePolling } from '../../composables/usePolling'
 import { formatDay } from '../../utils/dates'
+import { useAuthStore } from '../../stores/auth'
+import { useProgressStore } from '../../stores/progress'
 import { shiftForTrim } from '../../utils/highlights'
 import { formatDateTime } from '../../utils/format'
 import GuidancePanel from '../../components/GuidancePanel.vue'
@@ -168,6 +170,7 @@ async function confirmSubmit() {
     draftFor.value = null
     notice.value = 'Your understanding was shared. Thank you!'
     announcement.value = notice.value
+    void useProgressStore().load(useAuthStore().user.id) // the header's level and streak move on
     await fetchBoard('poll') // show the result at once
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) {

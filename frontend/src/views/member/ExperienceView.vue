@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { getExperience } from '../../api/experience'
 import { btnOutline } from '../../components/buttonClasses'
+import LevelBadge from '../../components/LevelBadge.vue'
 import PageState from '../../components/PageState.vue'
 import ProgressBar from '../../components/ProgressBar.vue'
 import { levelProgress } from '../../utils/experience'
@@ -52,12 +53,15 @@ function sharedText(count) {
       @retry="load"
     >
       <section class="bg-room-card space-y-4 rounded-[18px] p-5 text-white">
-        <div>
-          <p class="text-xs font-bold uppercase tracking-[2px] text-gold-500">Your level</p>
-          <h2 class="mt-1 text-3xl font-extrabold">{{ data.level.name }}</h2>
-          <p class="mt-1 text-sm text-on-navy-soft">
-            {{ data.totalPoints }} EXP · {{ sharedText(data.totalSubmissions) }}
-          </p>
+        <div class="flex items-center gap-4">
+          <LevelBadge :code="data.level.code" :size="72" />
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[2px] text-gold-500">Your level</p>
+            <h2 class="mt-1 text-3xl font-extrabold">{{ data.level.name }}</h2>
+            <p class="mt-1 text-sm text-on-navy-soft">
+              {{ data.totalPoints }} EXP · {{ sharedText(data.totalSubmissions) }}
+            </p>
+          </div>
         </div>
 
         <div v-if="progress" class="rounded-xl bg-white p-4 text-navy-900">
@@ -86,6 +90,7 @@ function sharedText(count) {
             :key="level.code"
             :class="['flex flex-wrap items-center gap-3 px-4 py-3', level.code === data.level.code ? 'bg-gold-50' : '']"
           >
+            <LevelBadge :code="level.code" :size="36" :locked="data.totalPoints < level.threshold" />
             <p class="min-w-0 flex-1 font-semibold text-navy-900">{{ level.name }}</p>
             <p class="text-sm text-muted">{{ level.threshold }} EXP</p>
             <span
