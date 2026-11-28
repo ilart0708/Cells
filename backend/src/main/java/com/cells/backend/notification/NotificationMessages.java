@@ -52,6 +52,13 @@ final class NotificationMessages {
                     List.of(d.leaderName() + " shared a personal reflection on " + what + " in " + room + "."),
                     "Read the reflection", notePath,
                     push(d, "Personal reflection posted", room + ": " + passage, notePath));
+            // Phone push only (the dispatcher sends no email for this type). Who reacted is never named.
+            case ANSWER_REACTED -> new Message(
+                    "Someone reacted to your understanding in " + room,
+                    "Someone reacted to your understanding",
+                    List.of("Someone in " + room + " reacted to what you shared on " + what + "."),
+                    "See the reaction", notePath,
+                    push(d, "Someone reacted to your understanding", room + ": " + passage, notePath));
         };
     }
 
