@@ -1,6 +1,6 @@
-# CELLS - Handoff status (last updated 26 November 2026, evening)
+# CELLS - Handoff status (last updated 28 November 2026)
 
-For anyone (or any Claude session, on any account) continuing this work. Read this first. The Roadmap, Product Concept and Design System Guide are the source of truth for product rules. A copy of this note also lives in the Claude Project "Cells" as `claude/CELLS - Handoff Status (26 Nov 2026).md`.
+For anyone (or any Claude session, on any account) continuing this work. Read this first. The Roadmap, Product Concept and Design System Guide are the source of truth for product rules. A copy of this note also lives in the Claude Project "Cells" as `claude/CELLS - Handoff Status (28 Nov 2026).md`.
 
 **Rule for every session:** at the end of each piece of work, update this file (and the Project copy) with what changed, what is open and which branch holds it.
 
@@ -19,40 +19,42 @@ For anyone (or any Claude session, on any account) continuing this work. Read th
 - A Stop hook sometimes claims "unpushed commits". It has been wrong every time; verify with `git ls-remote --heads origin <branch>` against `git rev-parse HEAD`.
 - Screenshots for Play are done; the owner does not want them retaken.
 
-## Current state of work (26 Nov 2026)
+## Current state of work (28 Nov 2026)
 
-### Branch `feature/notification-icon` (pushed, NOT merged; built on `feature/leader-dashboard-status`)
+### Merged into `main` on 27 Nov 2026 (PRs #41 to #44)
+All of the stacked branches below are merged. PR #44 contained the whole stack, so none of them needs a separate merge, and the branches can be deleted. None of this was compiled or built by Claude: check the Render build log and the next Netlify build, and fix any small errors on a new branch.
+
+**Deployment status of this batch is not recorded here.** Open item 1 says what to confirm. Note that the new frontend needs the new backend; old frontend plus new backend is safe.
+
+#### PR #44 `feature/notification-icon` (built on `feature/leader-dashboard-status`)
 Android only: `res/drawable/ic_stat_cells.xml` (white CELLS mark on transparent), `res/values/colors.xml` (navy accent) and two Firebase `default_notification_*` meta-data entries in `AndroidManifest.xml`, so push notifications no longer show the launcher icon as a white square. Needs `npm run cap:sync` and a rebuild; check on a real phone by sending a test push (see `docs/android-app.md`).
 
-### Branch `feature/leader-dashboard-status` (pushed, NOT merged, NOT deployed; built on `feature/level-badges-header`)
+#### PR #43 `feature/leader-dashboard-status`
 Frontend only. The leader dashboard (`views/LeaderDashboardView.vue`) was just a welcome card and a button. It now shows, for each active room (up to 20): room title, today's devotion, a "Participation today" progress bar (exempt members not counted), whose turn it is, a warning when the line is stuck on a disabled account, and every member with number, name and status pill (Submitted, Their turn, Waiting, Exempted). Top tiles: active rooms, members, shared today, still to share. Buttons: Today's board, Open room, All my rooms. It reuses `GET /leader/rooms` and `GET /leader/rooms/{id}/participation/today` (one call per room, on load and every 30 s while the tab is visible), so no backend change and no Postman request. `PlaceholderDashboard.vue` is no longer used by the leader.
 
-### Branch `feature/level-badges-header` (pushed, NOT merged, NOT deployed; built on `feature/answer-reactions`)
+#### PR #42 `feature/level-badges-header`
 Frontend only, no backend or database change, so no Postman request.
 - `LevelBadge.vue`: round badge icons for the five levels (Seed, Sprout, Branch, Tree, Fruitful), grey when locked. Used on the Experience page (big on the hero card, one per row of the ladder) and in `GrowthLevelPill`.
 - Member header (`AppShell.vue`): order is Name, level badge, streak flame, role, Log out. Badge links to Experience, streak links to History. Streak = the longest current streak (devotions in a row) across the member's active rooms. Data comes from the existing `/member/experience` and `/member/participation/summary` through `stores/progress.js` (reset on logout, refreshed after sharing an answer). Other roles keep the old header.
-- Not compiled or built by Claude.
 
-### Branch `feature/answer-reactions` (pushed, NOT merged, NOT deployed; built on top of `feature/answer-highlights`)
+#### PR #41 `feature/answer-reactions` (includes `feature/answer-highlights`)
 Members and the room's leader can react to a shared answer with Amen 🙏, Encouraged 💛, Helpful 💡 or Praying 🕊️.
 - Rules (owner chose "B"): a member can react once they could read the answers (shared their own, exempt, or day over); the leader any time in their own active room. One reaction per person per answer, tapping another changes it, tapping the same takes it back. Not on your own answer or a removed answer. Counts are shown, who reacted is never returned. No EXP, no notifications.
 - Migration `V25__answer_reactions.sql` (unique per answer and user, cascades on answer or account delete). Package `reaction/` (`ReactionService`, upsert is one atomic SQL statement). Endpoints `PUT/DELETE /member|leader/rooms/{roomId}/submissions/{id}/reaction` return `{counts, mine}`; answer lists now carry `reactions`.
 - Frontend: `ReactionBar.vue` under every answer (member panel and leader answers), `api/reactions.js`, `constants/reactions.js`. Postman folder "Reactions (shared answers)". Privacy policy and Play docs updated.
-- Not compiled or built by Claude. Merge order: `feature/answer-highlights` first (this branch contains it), or merge this one alone since it includes both.
 
-### Branch `feature/answer-highlights` (pushed, NOT merged, NOT deployed)
+#### `feature/answer-highlights` (merged as part of PR #41)
 Members can mark key sentences in their own answer and add a one-line key takeaway; the leader and the other members see them.
 - Migration `V24__answer_highlights.sql`: `devotion_submissions.takeaway` (200) and `highlights` (text "start-end,start-end"). Additive, so the live website keeps working after the backend deploys.
 - `POST .../submissions` accepts optional `takeaway` and `highlights` (max 5 non-overlapping character ranges of the trimmed answer, checked by `Highlights.validated`, 400 with `errors.highlights`). Written once with the answer, never edited. A leader removing a reported answer clears both.
 - Answer responses (own, room list, leader list) now include `takeaway` and `highlights`.
 - Frontend: highlight tool and takeaway box in `SubmissionForm` (select text, tap Highlight; editing the text clears the marks), new `AnswerText.vue` used everywhere an answer is shown, `utils/highlights.js`. Privacy policy sentence and Postman submit request updated.
-- Not compiled or built by Claude (node_modules is incomplete in the sandbox). Check the Render build and the next Netlify publish. Old frontend plus new backend is safe; new frontend needs the new backend.
 
 ### Merged and deployed: `release/self-registration-and-rules` (PRs #39 and #40)
-The backend is deployed on Render (owner confirmed 26 Nov). Netlify publish is still manual and pending, so "Create your group", the rules checkbox and the "not verified" label are not on the website yet. After the website is published, make `acceptRules` required again.
+The backend is deployed on Render (owner confirmed 26 Nov). Netlify publish is still manual and pending, so "Create your group", the rules checkbox and the "not verified" label are not on the website until the frontend is published. After the website is published, make `acceptRules` required again.
 
-### Earlier description of that release (for reference)
-One combined branch from `main`, ready for one PR. It supersedes `feature/leader-self-registration` and `feature/rules-on-invitation` (older, can be deleted after merge).
+### Release details: self-registration and rules (merged)
+It supersedes `feature/leader-self-registration` and `feature/rules-on-invitation` (older, can be deleted).
 
 1. **Leader self-registration** (`POST /api/v1/auth/register-leader`, public, rate-limited):
    - A leader creates their own group without an invitation: name, email, password, church name, pastor name (required, typed text, not an account), optional pastor email (admin only), and a required "I agree" to community rules.
@@ -64,18 +66,16 @@ One combined branch from `main`, ready for one PR. It supersedes `feature/leader
 2. **Community rules on invitation accept:** the accept-invitation page shows role-specific rules (member, invited leader, pastor) with an agree checkbox and sends `acceptRules`. **The server treats `acceptRules` as optional on `/invitations/accept`** so the website currently live on Netlify (which does not send it) keeps working. Make it required again (`@AssertTrue` in `AcceptInvitationRequest`) only after the new frontend is published. Accounts that existed before this have not seen the rules.
 3. Privacy policy, delete-account page, `docs/play-store.md` and Postman were updated to match.
 
-**Deploy order when the owner is ready:** merge the PR, let Render deploy and check the log that Flyway applied V23, then publish the frontend on Netlify. Until Netlify is published only the new website pages (Create your group, rules checkbox, "not verified" label) are missing; nothing existing breaks. Not built or compiled by Claude: expect to fix small compile errors if the Render or local build complains.
-
 ### Earlier work already merged
 Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening, privacy policy edits and reports text (PRs #37/#38), leader dashboard placeholder removed, Play Store answers in `docs/play-store.md`.
 
 ## Google Play status
 - Done: privacy policy and delete-account pages, Data safety and store listing drafts (`docs/play-store.md`), graphics and 8 screenshots (delivered as a zip), tester invitation message.
-- Launcher icon and splash exist (`frontend/assets`). Notification icon added on `feature/notification-icon`. Still to do: signed `.aab` (`docs/android-app.md`); create test accounts for Google's App access; start the closed test (12 testers opted in for 14 days; personal account created after 13 Nov 2023); then apply for production.
+- Launcher icon and splash exist (`frontend/assets`). Notification icon merged in PR #44. Still to do: signed `.aab` (`docs/android-app.md`); create test accounts for Google's App access; start the closed test (12 testers opted in for 14 days; personal account created after 13 Nov 2023); then apply for production.
 - Before submitting: `APP_RATE_LIMIT_DEBUG` must be off on Render.
 
 ## Open items
-1. Publish the frontend on Netlify (owner, manual, in bulk). Afterwards make `acceptRules` required on the server. Merge and deploy `feature/notification-icon` (it includes `feature/leader-dashboard-status`, `feature/level-badges-header`, `feature/answer-reactions` and `feature/answer-highlights`) before or together with that publish.
+1. Deploy and publish. Confirm that Render deployed `main` after PR #44 and that the log shows Flyway applied V24 and V25. Then publish the frontend on Netlify (owner, manual, in bulk) and make `acceptRules` required on the server. Until the publish, none of these are on the website: Create your group, the rules checkbox, the "not verified" label, highlights, reactions, level badges, the new leader dashboard. For the Android app, run `npm run cap:sync` and rebuild to include the notification icon.
 2. Rate limiter: DONE. The owner verified on 27 Nov 2026 that Render has `APP_RATE_LIMIT_CLIENT_IP_HEADER=CF-Connecting-IP`, that `APP_RATE_LIMIT_NETLIFY_SIGN_SECRET` matches the Netlify variable, and that `APP_RATE_LIMIT_DEBUG` is not set (debug off). Optional re-test: 12 wrong logins in a row should end in 429.
 3. `fix/android-allow-backup` (`android:allowBackup="false"`) if not merged yet.
 4. Real SMTP and a custom domain (`MAIL_ENABLED=false` on Render); Android App Links for invitation links.
