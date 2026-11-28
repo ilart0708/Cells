@@ -69,6 +69,13 @@ It supersedes `feature/leader-self-registration` and `feature/rules-on-invitatio
 ### Earlier work already merged
 Phase 9 (daily cycle and notifications), Capacitor app, Firebase push, hardening, privacy policy edits and reports text (PRs #37/#38), leader dashboard placeholder removed, Play Store answers in `docs/play-store.md`.
 
+### Branch `feature/reaction-push-notification` (NOT merged, NOT deployed; built on `main`)
+Backend only, no frontend change and no new endpoint, so no Postman request. When someone reacts to a member's shared answer, the author gets a phone push: "Someone reacted to your understanding" (body: room label and passage). It never says who reacted or which reaction. Tapping it opens `/member/rooms/{roomId}/devotions/{devotionId}`.
+- Migration `V26__reaction_notification_type.sql` adds `ANSWER_REACTED` to `chk_notifications_type`. Additive.
+- `NotificationType.ANSWER_REACTED`, a message in `NotificationMessages`, `NotificationService.answerReacted(roomId, devotionId, authorId)`, called from `ReactionService` after a member or leader reaction. Push only: `NotificationDispatcher` skips email for this type.
+- One push per answer: the unique key (user, type, room, devotion, day) stores it once, so a second reactor, a changed reaction or remove-and-add never sends another. Disabled accounts are skipped.
+- Not compiled or built by Claude. Deploy order: merge, let Render deploy, check the log that Flyway applied V26. No frontend publish needed, but the Android app needs push enabled on the phone to receive it.
+
 ## Google Play status
 - Done: privacy policy and delete-account pages, Data safety and store listing drafts (`docs/play-store.md`), graphics and 8 screenshots (delivered as a zip), tester invitation message.
 - Launcher icon and splash exist (`frontend/assets`). Notification icon merged in PR #44. Still to do: signed `.aab` (`docs/android-app.md`); create test accounts for Google's App access; start the closed test (12 testers opted in for 14 days; personal account created after 13 Nov 2023); then apply for production.

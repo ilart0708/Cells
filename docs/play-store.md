@@ -21,7 +21,7 @@ For members
 - Read today's passage and write your understanding
 - See whose turn it is in your group
 - Follow your own participation history and experience points (EXP)
-- Optional reminders when a devotion is posted or it is your turn
+- Optional reminders when a devotion is posted, it is your turn, or someone reacts to your understanding (never says who)
 
 For cell group leaders
 - Create rooms for your groups and invite members

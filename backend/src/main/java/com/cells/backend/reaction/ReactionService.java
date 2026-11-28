@@ -5,6 +5,7 @@ import com.cells.backend.common.ResourceNotFoundException;
 import com.cells.backend.devotion.Devotion;
 import com.cells.backend.devotion.DevotionRepository;
 import com.cells.backend.devotion.DevotionStatus;
+import com.cells.backend.notification.NotificationService;
 import com.cells.backend.participation.DailyExemptionRepository;
 import com.cells.backend.participation.DevotionSubmission;
 import com.cells.backend.participation.DevotionSubmissionRepository;
@@ -36,6 +37,7 @@ public class ReactionService {
     private final DailyExemptionRepository exemptionRepository;
     private final RoomRepository roomRepository;
     private final RoomMemberRepository roomMemberRepository;
+    private final NotificationService notificationService;
     private final Clock clock;
 
     public ReactionService(ReactionRepository reactionRepository,
@@ -44,6 +46,7 @@ public class ReactionService {
                            DailyExemptionRepository exemptionRepository,
                            RoomRepository roomRepository,
                            RoomMemberRepository roomMemberRepository,
+                           NotificationService notificationService,
                            Clock clock) {
         this.reactionRepository = reactionRepository;
         this.submissionRepository = submissionRepository;
@@ -51,6 +54,7 @@ public class ReactionService {
         this.exemptionRepository = exemptionRepository;
         this.roomRepository = roomRepository;
         this.roomMemberRepository = roomMemberRepository;
+        this.notificationService = notificationService;
         this.clock = clock;
     }
 
@@ -58,6 +62,7 @@ public class ReactionService {
     public ReactionSummary memberReacts(Long memberId, Long roomId, Long submissionId, ReactionType type) {
         DevotionSubmission submission = checkedForMember(memberId, roomId, submissionId);
         reactionRepository.upsert(submissionId, roomId, memberId, type.name());
+        notificationService.answerReacted(roomId, submission.getDevotionId(), submission.getMemberId());
         return summaryOf(memberId, submission.getId());
     }
 
@@ -72,6 +77,7 @@ public class ReactionService {
     public ReactionSummary leaderReacts(Long leaderId, Long roomId, Long submissionId, ReactionType type) {
         DevotionSubmission submission = checkedForLeader(leaderId, roomId, submissionId);
         reactionRepository.upsert(submissionId, roomId, leaderId, type.name());
+        notificationService.answerReacted(roomId, submission.getDevotionId(), submission.getMemberId());
         return summaryOf(leaderId, submission.getId());
     }
 

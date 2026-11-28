@@ -102,7 +102,8 @@ public class NotificationDispatcher {
         List<String> errors = new ArrayList<>();
 
         // ---- email ----
-        boolean emailDone = details.emailSentAt() != null || !mailProperties.enabled();
+        boolean emailDone = details.emailSentAt() != null || !mailProperties.enabled()
+                || details.kind() == NotificationType.ANSWER_REACTED; // reactions are phone push only
         if (!emailDone) {
             try {
                 String footnote = "You’re receiving this because you belong to " + details.roomLabel() + " on CELLS.";

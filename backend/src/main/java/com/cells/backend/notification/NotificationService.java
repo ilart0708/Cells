@@ -143,6 +143,25 @@ public class NotificationService {
         dispatchAfterCommit(queued);
     }
 
+    /**
+     * Someone reacted to a member's shared answer: tell the author, by phone push only. One notification per
+     * answer (the table's unique key), so a second reaction, a changed reaction or a removed-and-added reaction
+     * never sends another one. It never says who reacted.
+     */
+    @Transactional
+    public void answerReacted(Long roomId, Long devotionId, Long authorId) {
+        Devotion devotion = devotionRepository.findByIdAndRoomId(devotionId, roomId).orElse(null);
+        if (devotion == null) {
+            return;
+        }
+        for (RoomMemberResponse member : roomMemberRepository.roster(roomId)) {
+            if (member.memberId().equals(authorId) && member.accountStatus() == UserStatus.ACTIVE) {
+                dispatchAfterCommit(enqueue(authorId, NotificationType.ANSWER_REACTED, devotion, clock.instant()));
+                return;
+            }
+        }
+    }
+
     // ---------- helpers ----------
 
     private int enqueue(Long memberId, NotificationType type, Devotion devotion, Instant now) {
